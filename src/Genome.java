@@ -27,7 +27,7 @@ public class Genome {
         // Create input nodes specified by parameters.
         // nodeNum is a global variable which allows assignment of nodeIDs and is incremented after each node creation.
         for( int i = 0; i < inputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( 0 ) );
+            nodeGenes.add( new NodeGene( nodeNum, 0 ) );
             nodeNum += 1;
         }
 
@@ -41,7 +41,7 @@ public class Genome {
 
         // Creates output nodes as specified by parameters, incrementing nodeNum each time.
         for( int i = 0; i < outputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( 2 ) );
+            nodeGenes.add( new NodeGene( nodeNum, 2 ) );
             outputNodeID = nodeNum;
             nodeNum += 1;
         }
@@ -74,11 +74,11 @@ public class Genome {
     }
 
     // Adds a new nodeGene to the genome with defined properties, or a copy of an already present nodeGene
-    public void addNodeGene( int nodeID, int nodeType ) {
-        nodeGenes.add( new NodeGene( nodeID, nodeType ) );
+    public void addNodeGene( int nodeID, int innovation, int nodeType ) {
+        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType ) );
     }
     public void addNodeGene( NodeGene ng ) {
-        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getNodeType() ) );
+        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType() ) );
     }
 
 
@@ -349,7 +349,7 @@ public class Genome {
                 default: type = "Invalid Type";
                     break;
             }
-            System.out.println( "NodeID: " + nodeGenes.get( i ).getNodeID() + " | NodeType: " + type );
+            System.out.println( "NodeID: " + nodeGenes.get( i ).getNodeID() + " | NodeType: " + type + " | Innovation: " + nodeGenes.get( i ).getInnovation() );
         }
     }
     public void reportConnections() {

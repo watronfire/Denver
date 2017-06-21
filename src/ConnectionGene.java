@@ -4,7 +4,7 @@ import java.util.Random;
 /**
  * Created by nate on 3/28/17.
  */
-public class ConnectionGene {
+public class ConnectionGene extends Gene {
 
     // Instance variables
     private int inNode;
@@ -13,13 +13,11 @@ public class ConnectionGene {
     private boolean enabled;
     private int innovation;
 
-    private static int globalInnovation = 1;
-
     // Constructor when you need a random weight
     public ConnectionGene( int inNode, int outNode ) {
         this.inNode = inNode;
         this.outNode = outNode;
-        innovation = ConnectionGene.globalInnovation++;
+        innovation = Gene.getGlobalInnovation();
 
         // I'm generating a random weight between -2 and 2, because that's what the tutorial seems to use.
         weight = Math.random() * 2 - 1;
@@ -30,7 +28,7 @@ public class ConnectionGene {
     public ConnectionGene( int inNode, int outNode, double weight ) {
         this.inNode = inNode;
         this.outNode = outNode;
-        innovation = ConnectionGene.globalInnovation++;
+        innovation = Gene.getGlobalInnovation();
         this.weight = weight;
         enabled = true;
     }
