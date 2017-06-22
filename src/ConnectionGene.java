@@ -50,6 +50,4 @@ public class ConnectionGene extends Gene {
     public void disable() { enabled = false; }
     public void swapStatus() { enabled = !enabled; }
 
-
-
 }

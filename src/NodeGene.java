@@ -26,4 +26,5 @@ public class NodeGene extends Gene {
     public int getNodeID() { return nodeID; }
     public int getNodeType() { return nodeType; }
     public double getValue() { return value; };
+
 }

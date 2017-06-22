@@ -4,7 +4,7 @@
 
 // Both types of genes, both connections and nodes, require identification globally. Mostly for crossover.
 // It's possible that there may be other uses to this.
-abstract class Gene {
+public class Gene implements Comparable<Gene> {
 
     int innovation;
 
@@ -15,6 +15,14 @@ abstract class Gene {
 
     public int getInnovation() {
         return innovation;
+    }
+
+
+    // Method responsible for comparing two gene objects. Needs to be done so that arrayList of gene objects can be
+    // sorted.
+    @Override
+    public int compareTo( Gene otherGene ) {
+        return this.getInnovation() - otherGene.getInnovation();
     }
 
 }
