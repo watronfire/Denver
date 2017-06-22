@@ -11,7 +11,6 @@ public class ConnectionGene extends Gene {
     private int outNode;
     private double weight;
     private boolean enabled;
-    private int innovation;
 
     // Constructor when you need a random weight
     public ConnectionGene( int inNode, int outNode ) {
@@ -46,7 +45,6 @@ public class ConnectionGene extends Gene {
     public int getOutNode() { return outNode; }
     public double getWeight() { return weight; }
     public boolean isEnabled() { return enabled; }
-    public int getInnovation() { return innovation; }
 
     public void setWeight( double weight ) { this.weight = weight; }
     public void disable() { enabled = false; }

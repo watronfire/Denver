@@ -4,7 +4,6 @@
 public class NodeGene extends Gene {
 
     private int nodeID;
-    private int innovation;
     private int nodeType;              // So 0 is input, 1 is hidden, and 2 is output. Probably a better way to do this.
     private double value = 0.0;     // If the node is an input node then it should have a value of some kind. I think.
                                            // While I'm making this a double, I'm not sure if that correct.
@@ -24,7 +23,6 @@ public class NodeGene extends Gene {
     }
 
     public void setValue( double value ) { this.value = value; }
-    public int getInnovation() { return innovation; }
     public int getNodeID() { return nodeID; }
     public int getNodeType() { return nodeType; }
     public double getValue() { return value; };

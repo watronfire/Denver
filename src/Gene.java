@@ -6,9 +6,15 @@
 // It's possible that there may be other uses to this.
 abstract class Gene {
 
+    int innovation;
+
     private static int globalInnovation = 1;
     public static int getGlobalInnovation() {
         return globalInnovation++;
+    }
+
+    public int getInnovation() {
+        return innovation;
     }
 
 }
