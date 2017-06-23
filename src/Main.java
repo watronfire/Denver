@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Main {
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -11,17 +13,18 @@ public class Main {
 
 
         Genome gen1 = new Genome( 5, 1 );
-        gen1.reportConnections();
         Genome gen2 = new Genome( 5, 1 );
-        gen2.reportConnections();
 
         GenomeManager gm = new GenomeManager();
-        //System.out.println( "Different Species? " + gm.compareGenomes( gen1, gen2 ) );
 
-        System.out.println( " " );
-        System.out.println( "Child Genome" );
-        Genome genChild = gm.crossover( gen1, gen2 );
-        genChild.reportNodes();
-        genChild.reportConnections();
+        Genome child = gm.crossover( gen1, gen2 );
+
+        System.out.println();
+        System.out.println( "Child: " );
+
+        child.reportNodes();
+        child.reportConnections();
+
+
     }
 }

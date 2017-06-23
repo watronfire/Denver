@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -55,9 +56,15 @@ public class Genome {
 
     }
 
-    // TODO: New constructor to be used during crossover. Creates blank genome with no genes.
-    public Genome() {
-        // You know I think that's all there is too it
+    // Constructor to be used during crossover, when you already have a list of genes.
+    public Genome( ArrayList<Gene> genes ) {
+        for( Gene g : genes ) {
+            if( g instanceof ConnectionGene ) {
+                addConnectionGene( (ConnectionGene) g );
+            } else if ( g instanceof NodeGene ) {
+                addNodeGene( (NodeGene) g );
+            }
+        }
     }
 
 
@@ -270,6 +277,19 @@ public class Genome {
     // GETTER METHODS //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Yields an ArrayList of all genes. Hopefully in order of their innovation number.
+    public ArrayList<Gene> getAllGenes() {
+        ArrayList<Gene> temp = new ArrayList<>();
+        temp.addAll( connectionGenes );
+        temp.addAll( nodeGenes );
+
+        // Since all genes are comparable, you can use sort on them!
+        Collections.sort( temp );
+        for( Gene g : temp ) {
+            System.out.println( "Type: " + g.getClass() + " | Innovation #: " + g.getInnovation() );
+        }
+        return temp;
+    }
     // Because connections hold only the ID of their input or output, this function returns the NodeGene with a certain ID
     public NodeGene getNodeGene( int nodeID ) {
         for( int i = 0; i < nodeGenes.size(); i += 1 ) {
@@ -318,7 +338,7 @@ public class Genome {
         }
         return false;
     }
-    //Checks if a nodegene with the specific NodeID is present in the genome
+    //Checks if a nodeGene with the specific NodeID is present in the genome
     public boolean containsNodeGene( int id ) {
         for( NodeGene ng : nodeGenes ) {
             if( ng.getNodeID() == id ) {

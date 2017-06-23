@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -107,24 +108,20 @@ public class GenomeManager {
     // Given two genomes, returns a new genome made up the crossover of the two input genomes.
     public Genome crossover( Genome genome1, Genome genome2 ) {
 
-        Genome childGenome = new Genome();
+        ArrayList<Gene> childGeneList = new ArrayList<>();
+
+        // Create a HashMap of all genes from genome1 and their innovation numbers.
+        HashMap<Integer, Gene> parent1 = new HashMap<>();
+        for( Gene g : genome1.getAllGenes() ) {
+            parent1.put( g.getInnovation(), g );
+        }
+        HashMap<Integer, Gene> parent2 = new HashMap<>();
+        for( Gene g : genome2.getAllGenes() ) {
+            parent2.put( g.getInnovation(), g );
+        }
 
         // Creates an ArrayList of innovation numbers of both genomes, with no duplicates.
-        ArrayList<Integer> innovationTotal = new ArrayList<>();
-        // Add all the innovation numbers from genome1
-        for( int i = 0; i < genome1.getSize(); i += 1 ) {
-            innovationTotal.add( genome1.getConnectionGene( i, true ).getInnovation() );
-        }
-        // Add innovation numbers from genome2 which are not already in the ArrayList.
-        for( int i = 0; i < genome2.getSize(); i += 1 ) {
-            if( !innovationTotal.contains( genome2.getConnectionGene( i, true ).getInnovation() ) ) {
-                innovationTotal.add( genome2.getConnectionGene( i, true ).getInnovation() );
-            }
-        }
-
-
-        boolean genome1contains = false;
-        boolean genome2contains = false;
+        ArrayList<Integer> innovationTotal = getSimilarInnovation( genome1, genome2 );
 
         // Determines which genome has the greater fitness
         // If they have the same fitness than genes will be randomly selected from both.
@@ -134,60 +131,62 @@ public class GenomeManager {
 
             // Iterates through the innovationTotal list.
             for( int i : innovationTotal ) {
-                genome1contains = false;
-                genome2contains = false;
-
-                genome1contains = genome1.containsConnectionGene( i );
-                genome2contains = genome2.containsConnectionGene( i );
 
                 // For each innovation number, determine is both or one of the genomes contains the gene.
-                if( genome1contains && genome2contains ) {
+                if( parent1.containsKey( i ) && parent2.containsKey( i ) ) {
                     if( random.nextBoolean() ) {
-                        childGenome.addConnectionGene( genome1.getConnectionGene( i, false ) );
+                        childGeneList.add( parent1.get( i ) );
                     } else {
-                        childGenome.addConnectionGene( genome2.getConnectionGene( i, false ) );
+                        childGeneList.add( parent2.get( i ) );
                     }
 
-                } else if ( genome1contains ) {
-                    childGenome.addConnectionGene( genome1.getConnectionGene( i, false ) );
+                } else if ( parent1.containsKey( i ) ) {
+                    childGeneList.add( parent1.get( i ) );
 
                 } else {
-                    childGenome.addConnectionGene( genome2.getConnectionGene( i, false ) );
+                    childGeneList.add( parent2.get( i ) );
                 }
             }
 
         // If genome1 fitness is greater, then it's genes will be added to the childGenome instead of genome2
         } else if( genome1.getFitness() > genome2.getFitness() ) {
             for( int i : innovationTotal ) {
-                if( genome1.containsConnectionGene( i ) ) {
-                    childGenome.addConnectionGene( genome1.getConnectionGene( i, false ) );
+                if( parent1.containsKey( i ) ) {
+                    childGeneList.add( parent1.get( i ) );
                 } else {
-                    childGenome.addConnectionGene( genome2.getConnectionGene( i, false ) );
+                    childGeneList.add( parent2.get( i ) );
                 }
             }
 
         // The opposite of the above situation.
         } else {
             for( int i : innovationTotal ) {
-                if( genome2.containsConnectionGene( i ) ) {
-                    childGenome.addConnectionGene( genome2.getConnectionGene( i, false ) );
+                if( parent2.containsKey( i ) ) {
+                    childGeneList.add( parent2.get( i ) );
                 } else {
-                    childGenome.addConnectionGene( genome1.getConnectionGene( i, false ) );
+                    childGeneList.add( parent1.get( i ) );
                 }
             }
         }
 
-        // Add the necessary nodes. Really all nodes present in the parents.
-        for( NodeGene ng: genome1.getNodeGenes() ) {
-            childGenome.addNodeGene( ng );
+
+        return new Genome( childGeneList );
+    }
+
+    public ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {
+        ArrayList<Integer> solution = new ArrayList<>();
+
+        for( Gene g : genome1.getAllGenes() ) {
+            solution.add( g.getInnovation() );
         }
-        for( NodeGene ng : genome2.getNodeGenes() ) {
-            if( !childGenome.containsNodeGene( ng.getNodeID() ) ) {
-                childGenome.addNodeGene( ng );
+        // Add innovation numbers from genome2 which are not already in the ArrayList.
+        for( Gene g : genome2.getAllGenes() ) {
+            if( !solution.contains( g.getInnovation() ) ) {
+                solution.add( g.getInnovation() );
             }
         }
 
-        return childGenome;
+        return solution;
     }
 
 }
