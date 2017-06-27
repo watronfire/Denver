@@ -13,17 +13,15 @@ public class Main {
 
 
         Genome gen1 = new Genome( 5, 1 );
+        gen1.reportNodes();
+        gen1.reportConnections();
+        System.out.println();
         Genome gen2 = new Genome( 5, 1 );
+        gen2.reportNodes();
+        gen2.reportConnections();
 
         GenomeManager gm = new GenomeManager();
 
-        Genome child = gm.crossover( gen1, gen2 );
-
-        System.out.println();
-        System.out.println( "Child: " );
-
-        child.reportNodes();
-        child.reportConnections();
 
 
     }

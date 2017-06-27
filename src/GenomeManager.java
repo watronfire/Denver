@@ -17,6 +17,7 @@ public class GenomeManager {
         }
     }
 
+    // TODO: Rewrite this method to accommodate getAllGenes().
     // Compares two genomes to determine whether their different species or not
     public boolean compareGenomes( Genome genome1, Genome genome2 ) {
 
@@ -104,7 +105,6 @@ public class GenomeManager {
         }
     }
 
-    // TODO: Finish the crossover function
     // Given two genomes, returns a new genome made up the crossover of the two input genomes.
     public Genome crossover( Genome genome1, Genome genome2 ) {
 

@@ -16,7 +16,7 @@ public class ConnectionGene extends Gene {
     public ConnectionGene( int inNode, int outNode ) {
         this.inNode = inNode;
         this.outNode = outNode;
-        innovation = Gene.getGlobalInnovation();
+        innovation = Gene.getGlobalInnovation( this );
 
         // I'm generating a random weight between -2 and 2, because that's what the tutorial seems to use.
         weight = Math.random() * 2 - 1;
@@ -27,7 +27,7 @@ public class ConnectionGene extends Gene {
     public ConnectionGene( int inNode, int outNode, double weight ) {
         this.inNode = inNode;
         this.outNode = outNode;
-        innovation = Gene.getGlobalInnovation();
+        innovation = Gene.getGlobalInnovation( this );
         this.weight = weight;
         enabled = true;
     }

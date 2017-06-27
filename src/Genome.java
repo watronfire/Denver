@@ -76,6 +76,7 @@ public class Genome {
     public void addConnectionGene( int inNode, int outNode, double weight, int innovation, boolean enabled ) {
         connectionGenes.add( new ConnectionGene( inNode, outNode, weight, innovation, enabled ) );
     }
+
     public void addConnectionGene( ConnectionGene gc ) {
         connectionGenes.add( new ConnectionGene( gc.getInNode(), gc.getOutNode(), gc.getWeight(), gc.getInnovation(), gc.isEnabled() ) );
     }
@@ -167,8 +168,14 @@ public class Genome {
     public void mutateEnable() {
         connectionGenes.get( rng.nextInt( connectionGenes.size() ) ).swapStatus();
     }
-    // TODO: Mutates the output threshold by either setting to a random double or adjusting slightly.
-
+    // Mutates the output threshold by either setting to a random double or adjusting slightly.
+    public void mutateThreshold() {
+        if( rng.nextBoolean() ) {
+            outputThreshold = rng.nextDouble() * 2 - 1;
+        } else {
+            outputThreshold += rng.nextDouble() * 0.2 - 0.1;
+        }
+    }
 
     ////////////////////
     // GENOME CLEANUP //
@@ -329,6 +336,9 @@ public class Genome {
     }
     // TODO: write fitness function
     public double getFitness() { return fitness; }
+
+    // Below may be obsolete!
+
     // Checks if a connection gene with the specified innovation number is present in genome
     public boolean containsConnectionGene( int inov ) {
         for( int i = 0; i < connectionGenes.size(); i += 1 ) {

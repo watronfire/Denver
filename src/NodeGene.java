@@ -11,7 +11,7 @@ public class NodeGene extends Gene {
     // For creating a new nodeGene from scratch
     public NodeGene( int nodeID, int nodeType ) {
         this.nodeID = nodeID;
-        innovation = Gene.getGlobalInnovation();
+        innovation = Gene.getGlobalInnovation( this );
         this.nodeType = nodeType;
     }
 
