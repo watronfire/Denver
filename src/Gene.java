@@ -20,7 +20,6 @@ abstract class Gene implements Comparable<Gene> {
     // and the NodeType, and the value is the innovation number.
     private static HashMap<List<Integer>, Integer> nodeInnovations = new HashMap<>();
 
-    // TODO: Create innovation array, to keep track of all structural changes
     private static int globalInnovation = 1;
 
     // To get an innovation number, a gene must be analyzed. If the gene is a topological feature which already exists/been

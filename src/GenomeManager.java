@@ -10,13 +10,6 @@ import java.util.Random;
 
 public class GenomeManager {
 
-    // TODO: Create speciation function
-    public void speciation( Genome[] genomes ) {
-        for( int i = 0; i < genomes.length - 1; i += 1 ) {
-
-        }
-    }
-
     // TODO: Rewrite this method to accommodate getAllGenes().
     // Compares two genomes to determine whether their different species or not
     public boolean compareGenomes( Genome genome1, Genome genome2 ) {

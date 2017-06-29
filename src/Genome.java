@@ -17,6 +17,7 @@ public class Genome {
     private double outputThreshold = 0.5;
     private Random rng = new Random();
     private double fitness = 0;
+    private int age = 0;
 
     //////////////////
     // CONSTRUCTORS //
@@ -336,27 +337,6 @@ public class Genome {
     }
     // TODO: write fitness function
     public double getFitness() { return fitness; }
-
-    // Below may be obsolete!
-
-    // Checks if a connection gene with the specified innovation number is present in genome
-    public boolean containsConnectionGene( int inov ) {
-        for( int i = 0; i < connectionGenes.size(); i += 1 ) {
-            if( connectionGenes.get( i ).getInnovation() == inov ) {
-                return true;
-            }
-        }
-        return false;
-    }
-    //Checks if a nodeGene with the specific NodeID is present in the genome
-    public boolean containsNodeGene( int id ) {
-        for( NodeGene ng : nodeGenes ) {
-            if( ng.getNodeID() == id ) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
     //////////////////////
