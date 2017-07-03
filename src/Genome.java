@@ -17,7 +17,6 @@ public class Genome {
     private double outputThreshold = 0.5;
     private Random rng = new Random();
     private double fitness = 0;
-    private int age = 0;
 
     //////////////////
     // CONSTRUCTORS //
@@ -177,6 +176,7 @@ public class Genome {
             outputThreshold += rng.nextDouble() * 0.2 - 0.1;
         }
     }
+    // Increases age by one.
 
     ////////////////////
     // GENOME CLEANUP //
@@ -245,8 +245,6 @@ public class Genome {
         // So quickly, and really just to place it here for the future. This function probably needs to be rewritten so
         // to prevent what I'm calling annular layers, three or more hidden nodes which feed into each other and create
         // a ring. This prevents an accurate evaluation of the network, but I'm unclear how to prevent it.
-
-        System.out.println( "Output: " + getNodeGene( outputNodeID ).getValue() );
         return getNodeGene( outputNodeID ).getValue() >= outputThreshold;
         // This should also check the output versus a value which is evolved...
 
@@ -293,9 +291,6 @@ public class Genome {
 
         // Since all genes are comparable, you can use sort on them!
         Collections.sort( temp );
-        for( Gene g : temp ) {
-            System.out.println( "Type: " + g.getClass() + " | Innovation #: " + g.getInnovation() );
-        }
         return temp;
     }
     // Because connections hold only the ID of their input or output, this function returns the NodeGene with a certain ID

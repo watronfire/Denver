@@ -27,7 +27,6 @@ public class GenomeManager {
         difference += determineWeightDelta( genome1, genome2 ) * weightDeltaWeight;
 
         // If difference is greater than a threshold, then the two input genomes are different species.
-        System.out.println( "Difference: " + difference );
         return difference > threshold;
 
     }
@@ -62,7 +61,6 @@ public class GenomeManager {
         }
 
         // Returns the number of disjointed genes normalized by the number of genes in each genome.
-        System.out.println( "DisjointedGenes: " + disjointedGenes );
         return disjointedGenes / Math.max( innovationG1.size(), innovationG2.size() );
     }
     // Determines the difference between two genomes in terms of the difference between weights of the same genes
@@ -99,7 +97,7 @@ public class GenomeManager {
     }
 
     // Given two genomes, returns a new genome made up the crossover of the two input genomes.
-    public Genome crossover( Genome genome1, Genome genome2 ) {
+    public static Genome crossover( Genome genome1, Genome genome2 ) {
 
         ArrayList<Gene> childGeneList = new ArrayList<>();
 
@@ -114,7 +112,7 @@ public class GenomeManager {
         }
 
         // Creates an ArrayList of innovation numbers of both genomes, with no duplicates.
-        ArrayList<Integer> innovationTotal = getSimilarInnovation( genome1, genome2 );
+        ArrayList<Integer> innovationTotal = GenomeManager.getSimilarInnovation( genome1, genome2 );
 
         // Determines which genome has the greater fitness
         // If they have the same fitness than genes will be randomly selected from both.
@@ -166,7 +164,7 @@ public class GenomeManager {
         return new Genome( childGeneList );
     }
 
-    public ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {
+    public static ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {
         ArrayList<Integer> solution = new ArrayList<>();
 
         for( Gene g : genome1.getAllGenes() ) {

@@ -20,9 +20,5 @@ public class Main {
         gen2.reportNodes();
         gen2.reportConnections();
 
-        GenomeManager gm = new GenomeManager();
-
-
-
     }
 }
