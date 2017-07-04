@@ -7,12 +7,13 @@ import java.util.Random;
  */
 
 // I need an object which will manage both a pool of genomes. This means declaring speciation and removing bad genomes.
+// The program that I'm utilizes calls this the
 
 public class GenomeManager {
 
     // TODO: Rewrite this method to accommodate getAllGenes().
     // Compares two genomes to determine whether their different species or not
-    public boolean compareGenomes( Genome genome1, Genome genome2 ) {
+    public static boolean areSpecies(Genome genome1, Genome genome2 ) {
 
         // So the documentation talks a about disjointed genes and excess genes, but really they both describe genes
         // which aren't present in the other genome. Both these types of genes should have the same penalty
@@ -26,13 +27,13 @@ public class GenomeManager {
         // Find the penalty incurred by differences in weights.
         difference += determineWeightDelta( genome1, genome2 ) * weightDeltaWeight;
 
-        // If difference is greater than a threshold, then the two input genomes are different species.
-        return difference > threshold;
+        // If difference is less than a threshold, then the two input genomes are of the same species.
+        return difference < threshold;
 
     }
 
     // Determines the difference between two genomes based on the number of genes they share/differ
-    public double determineDisjointed( Genome genome1, Genome genome2 )     {
+    private static double determineDisjointed( Genome genome1, Genome genome2 )     {
         // Create array of innovation numbers for genome 1
         ArrayList<Integer> innovationG1 = new ArrayList<>();
         for( int i = 0; i < genome1.getSize(); i += 1 ) {
@@ -64,7 +65,7 @@ public class GenomeManager {
         return disjointedGenes / Math.max( innovationG1.size(), innovationG2.size() );
     }
     // Determines the difference between two genomes in terms of the difference between weights of the same genes
-    public double determineWeightDelta( Genome genome1, Genome genome2 ) {
+    private static double determineWeightDelta( Genome genome1, Genome genome2 ) {
 
         // Create an array of all the innovation numbers of genome1. All genes which are in common between the two
         // will, by definition, be found in genome1.
@@ -164,7 +165,7 @@ public class GenomeManager {
         return new Genome( childGeneList );
     }
 
-    public static ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {
+    private static ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {
         ArrayList<Integer> solution = new ArrayList<>();
 
         for( Gene g : genome1.getAllGenes() ) {
@@ -178,6 +179,44 @@ public class GenomeManager {
         }
 
         return solution;
+    }
+
+    // Calculates how many offspring each member of the population should spawn. Equal to the genomes
+    // fitness divided by the average fitness of the entire genome population.
+    public static void assignSpawnRequirements( ArrayList<Genome> genomePool ) {
+        double totalFitness = 0;
+        double totalAverageFitness = 0;
+        for( Genome genome : genomePool ) {
+            totalFitness += genome.getFitness();
+        }
+        totalAverageFitness = totalFitness / genomePool.size();
+
+        for( Genome genome : genomePool ) {
+            genome.setSpawnAmount( genome.getFitness() / totalAverageFitness );
+        }
+    }
+
+    // Speciation function. Separates individual genomes into their respective species by calculating a
+    // compatibility score with every other member of the population.
+    public static void speciate( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
+        boolean added = false;
+
+        // Iterate through each genome and speciate
+        for( Genome genome: genomePool ) {
+            // Determine whether a genome is the same species as each species leader. If it finds a
+            // compatible species, then add it to the species. If no suitabe species if found, then
+            // create a new species.
+            for( Species species: speciesPool ) {
+                if( areSpecies( genome, species.getLeader() ) ) {
+                    species.addMember( genome );
+                    added = true;
+                    return;
+                }
+            }
+
+            // If no compatible species is found is really the only
+            speciesPool.add( new Species( genome ) );
+        }
     }
 
 }

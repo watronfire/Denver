@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 /**
  * Created by nate on 6/29/17.
@@ -8,6 +10,7 @@ public class Species implements Comparable<Species> {
 
     private Genome leader;
     private ArrayList<Genome> speciesMembers = new ArrayList<>();
+    private static int globalSpeciesID = 1;
     private int speciesID;
     private double bestFitness;
     private double averageFitness;
@@ -17,10 +20,11 @@ public class Species implements Comparable<Species> {
 
     // TODO: complete all this shit below.
 
-    public Species( Genome firstGenome, int speciesID ) {
+    public Species( Genome firstGenome ) {
         leader = firstGenome;
         speciesMembers.add( firstGenome );
-        this.speciesID = speciesID;
+        speciesID = globalSpeciesID;
+        globalSpeciesID += 1;
         bestFitness = leader.getFitness();
         averageFitness = leader.getFitness();
         timeSinceImprovement = 0;
@@ -36,7 +40,7 @@ public class Species implements Comparable<Species> {
     // Adds a new member to the species.
     public void addMember( Genome newGenome ) {
         // Checks to see if the new genome is already part of the species.
-        for( Genome genome: speciesMembers ) {
+        for( Genome genome : speciesMembers ) {
             if( newGenome == genome ) {
                 return;
             }
@@ -50,6 +54,7 @@ public class Species implements Comparable<Species> {
         if( newGenome.getFitness() > bestFitness ) {
             bestFitness = newGenome.getFitness();
             leader = newGenome;
+            timeSinceImprovement = 0;
         }
     }
 
@@ -66,21 +71,34 @@ public class Species implements Comparable<Species> {
     public void purge() {
         speciesMembers.clear();
         speciesMembers.add( leader );
+        timeSinceImprovement += 1;
+        reproductionRequirements = 0;
     }
 
     // Spawn amount is determine by calculating the sum of how many offspring each member of the species should have.
-    // Each member should have their fitness / averageFitness number of children.
+    // Each member should have their fitness / averageFitness number of children. However, this is complicated because
+    // it requires the average fitness of all genomes, not just the ones in a species.
     public void calculateSpawnAmount() {
         reproductionRequirements = 0;
-        updateAverageFitness();
         for( Genome genome : speciesMembers ) {
-            reproductionRequirements += genome.getFitness() / averageFitness;
+            reproductionRequirements += genome.getSpawnAmount();
         }
     }
 
-    // Still need to understand what this exactly is supposed to do.
+    // Returns a random genome selected from the best individuals.
     public Genome spawn() {
-        return new Genome( 5, 1 );
+        Genome newGenome;
+        // If the species only contains one genome, then that genome is returned.
+        if( speciesMembers.size() == 1 ) {
+            newGenome = new Genome( speciesMembers.get( 0 ).getAllGenes() );
+        } else {
+            // Else, selected a genome from the top 20% of the species.
+            Collections.sort( speciesMembers );
+            int maxIndexSize = (int)( 0.2 * speciesMembers.size() ) + 1;
+            Random ran = new Random();
+            newGenome = new Genome( speciesMembers.get( ran.nextInt( maxIndexSize ) ).getAllGenes() );
+        }
+        return newGenome;
     }
 
 

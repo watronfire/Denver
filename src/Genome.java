@@ -7,7 +7,7 @@ import java.util.Random;
  */
 
 
-public class Genome {
+public class Genome implements Comparable<Genome> {
 
     private ArrayList<NodeGene> nodeGenes = new ArrayList<>();
     private ArrayList<ConnectionGene> connectionGenes = new ArrayList<>();
@@ -17,6 +17,7 @@ public class Genome {
     private double outputThreshold = 0.5;
     private Random rng = new Random();
     private double fitness = 0;
+    private double spawnAmount = 0;
 
     //////////////////
     // CONSTRUCTORS //
@@ -332,7 +333,16 @@ public class Genome {
     }
     // TODO: write fitness function
     public double getFitness() { return fitness; }
+    // Returns the number of children this genome should spawn.
+    public double getSpawnAmount() { return spawnAmount; }
 
+
+    ////////////////////
+    // GETTER METHODS //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public void setSpawnAmount( double spawnAmount ) {
+        this.spawnAmount = spawnAmount;
+    }
 
     //////////////////////
     // REPORTER METHODS //
@@ -365,5 +375,11 @@ public class Genome {
             System.out.println( "Weight: " + connectionGenes.get( i ).getWeight() + " | Enabled: " + connectionGenes.get( i ).isEnabled() + " | Innovation: " + connectionGenes.get( i ).getInnovation() );
 
         }
+    }
+
+    @Override
+    // Utter hacky, shouldn't even work.
+    public int compareTo(Genome genome) {
+        return (int)( this.getFitness() - genome.getFitness() );
     }
 }

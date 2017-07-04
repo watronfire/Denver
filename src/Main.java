@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Main {
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +17,8 @@ public class Main {
         Genome gen2 = new Genome( 5, 1 );
         gen2.reportNodes();
         gen2.reportConnections();
+
+        GenomeManager.areSpecies( gen1, gen2 );
 
     }
 }
