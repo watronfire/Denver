@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Main {
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -8,17 +10,12 @@ public class Main {
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] args) {
-
-
-        Genome gen1 = new Genome( 5, 1 );
-        gen1.reportNodes();
-        gen1.reportConnections();
-        System.out.println();
-        Genome gen2 = new Genome( 5, 1 );
-        gen2.reportNodes();
-        gen2.reportConnections();
-
-        GenomeManager.areSpecies( gen1, gen2 );
+        ArrayList<Genome> genomePool = new ArrayList<>();
+        ArrayList<Species> speciesPool = new ArrayList<>();
+        int population = 50;
+        for( int i = 0; i < population; i++ ) {
+            genomePool.add( new Genome( 5, 2 ) );
+        }
 
     }
 }

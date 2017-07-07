@@ -70,7 +70,6 @@ public class Species implements Comparable<Species> {
     // Removes all but the leader from the species so that species can be assigned every epoch.
     public void purge() {
         speciesMembers.clear();
-        speciesMembers.add( leader );
         timeSinceImprovement += 1;
         reproductionRequirements = 0;
     }
@@ -94,7 +93,7 @@ public class Species implements Comparable<Species> {
         } else {
             // Else, selected a genome from the top 20% of the species.
             Collections.sort( speciesMembers );
-            int maxIndexSize = (int)( 0.2 * speciesMembers.size() ) + 1;
+            int maxIndexSize = (int)( Parameters.survivalRate * speciesMembers.size() ) + 1;
             Random ran = new Random();
             newGenome = new Genome( speciesMembers.get( ran.nextInt( maxIndexSize ) ).getAllGenes() );
         }
@@ -107,7 +106,6 @@ public class Species implements Comparable<Species> {
         // Hacky as fuck. This probably shouldn't work.
         return (int) (this.bestFitness - species.bestFitness );
     }
-
 
     // GETTER METHODS
     public Genome getLeader() {

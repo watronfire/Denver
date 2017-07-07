@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 
 /**
@@ -11,16 +12,20 @@ import java.util.Random;
 
 public class GenomeManager {
 
+    private static double totalAverageFitness;
+    private static double totalFitness;
+    private static double bestFitnessEver;
+
     // TODO: Rewrite this method to accommodate getAllGenes().
     // Compares two genomes to determine whether their different species or not
-    public static boolean areSpecies(Genome genome1, Genome genome2 ) {
+    private static boolean areSpecies(Genome genome1, Genome genome2 ) {
 
         // So the documentation talks a about disjointed genes and excess genes, but really they both describe genes
         // which aren't present in the other genome. Both these types of genes should have the same penalty
         double difference = 0;
         double weightDisjoint = 2.0;
         double weightDeltaWeight = 0.4;
-        double threshold = 1.0;
+
 
         // Find penalty incurred by disjointed genes
         difference += determineDisjointed( genome1, genome2 ) * weightDisjoint;
@@ -28,7 +33,7 @@ public class GenomeManager {
         difference += determineWeightDelta( genome1, genome2 ) * weightDeltaWeight;
 
         // If difference is less than a threshold, then the two input genomes are of the same species.
-        return difference < threshold;
+        return difference <= Parameters.compatibilityThreshold;
 
     }
 
@@ -182,24 +187,27 @@ public class GenomeManager {
     }
 
     // Calculates how many offspring each member of the population should spawn. Equal to the genomes
-    // fitness divided by the average fitness of the entire genome population.
-    public static void assignSpawnRequirements( ArrayList<Genome> genomePool ) {
-        double totalFitness = 0;
-        double totalAverageFitness = 0;
+    // fitness divided by the average fitness of the entire genome population. Also updates totalAverageFitness and
+    // bestFitness ever.
+    private static void assignSpawnRequirements( ArrayList<Genome> genomePool ) {
+        totalFitness = 0;
+        totalAverageFitness = 0;
         for( Genome genome : genomePool ) {
             totalFitness += genome.getFitness();
+            if( genome.getFitness() > bestFitnessEver ) {
+                bestFitnessEver = genome.getFitness();
+            }
         }
         totalAverageFitness = totalFitness / genomePool.size();
 
         for( Genome genome : genomePool ) {
-            genome.setSpawnAmount( genome.getFitness() / totalAverageFitness );
+            genome.setSpawnAmount( genome.getFitness() / totalAverageFitness);
         }
     }
 
     // Speciation function. Separates individual genomes into their respective species by calculating a
     // compatibility score with every other member of the population.
     public static void speciate( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
-        boolean added = false;
 
         // Iterate through each genome and speciate
         for( Genome genome: genomePool ) {
@@ -209,7 +217,6 @@ public class GenomeManager {
             for( Species species: speciesPool ) {
                 if( areSpecies( genome, species.getLeader() ) ) {
                     species.addMember( genome );
-                    added = true;
                     return;
                 }
             }
@@ -217,6 +224,32 @@ public class GenomeManager {
             // If no compatible species is found is really the only
             speciesPool.add( new Species( genome ) );
         }
+
+        // Probably should update spawn requirements now.
+        assignSpawnRequirements( genomePool );
+        for( Species species : speciesPool ) {
+            species.calculateSpawnAmount();
+        }
     }
 
+    // Method resets some values for the next generation and kills off any poorly performing species.
+    public static void resetAndKill( ArrayList<Species> speciesPool ) {
+        totalFitness = 0;
+        totalAverageFitness = 0;
+
+        // I don't understand anything below here. Not sure why I can't remove when I iterate through a list
+        // but I can remove an object in an iterator.
+        Iterator<Species> i = speciesPool.iterator();
+        while( i.hasNext() ) {
+            Species s = i.next();
+
+            // Purges every species
+            s.purge();
+
+            // Deletes species if its not improving and if it doesn't have the best fitness.
+            if( ( s.getAge() > Parameters.generationsAllowedNoImplovement ) && ( s.getBestFitness() < bestFitnessEver ) ) {
+                i.remove();
+            }
+        }
+    }
 }
