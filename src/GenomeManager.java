@@ -15,6 +15,104 @@ public class GenomeManager {
     private static double totalAverageFitness;
     private static double totalFitness;
     private static double bestFitnessEver;
+    private static double bestFitnessThisGeneration;
+
+    // This functions ties everything together. Performs one epoch of the genetic algorithm and returns a
+    // an ArrayList of new genomes.
+    public static ArrayList<Genome> epoch( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
+        // Resets appropriate values and kills off poorly performing species.
+        resetAndKill( speciesPool );
+
+        //sortAndRecord();
+
+        // Speciates the genome population and also updates each species spawn amounts.
+        speciate( genomePool, speciesPool );
+
+        // ArrayList which will hold the new population of genomes.
+        ArrayList<Genome> newPopulation = new ArrayList<>();
+
+        int numSpawnedSoFar = 0;
+
+        Genome temp;
+
+        // Iterate through each species and spawn new individuals for the next generation.
+        for( Species species : speciesPool ) {
+            // Because spawn amounts are a double cast to an int, there could be overflow, this prevents that.
+            if( numSpawnedSoFar < Parameters.populationSize ) {
+
+
+                boolean bestAdded = false;
+                // This is the number of offspring this species is required to spawn.
+                int numberToSpawn = (int) Math.round( species.getReproductionRequirements() );
+                // While there are still offspring to spawn
+                for( int i = 0; i <= numberToSpawn; i++ ) {
+                    // First grab the best performing species from each genome and add it to the new population without
+                    // mutation.
+                    if( !bestAdded ) {
+                        temp = new Genome( species.getLeader().getAllGenes() );
+                        bestAdded = true;
+
+                    // Else grab other things.
+                    } else {
+                        // If the species only has one member than it can only be advanced with mutations.
+                        if( species.getNumberOfMembers() == 1 ) {
+                            temp = new Genome( species.spawn().getAllGenes() );
+
+                        // if greater than one then we can use crossover.
+                        } else {
+                            Genome g1 = species.spawn();
+                            temp = g1;
+                            if( Math.random() < Parameters.crossoverRate ) {
+
+                                // Have to make sure that it's not the same
+                                Genome g2 = species.spawn();
+                                int numOfAttempts = 5;
+
+                                while( ( g1 == g2 ) && ( numOfAttempts > 0) ) {
+                                    g2 = species.spawn();
+                                    numOfAttempts -= 1;
+                                }
+
+                                if( g1 != g2 ) {
+                                    temp = crossover( g1, g2 );
+                                }
+                            } else {
+                                temp = new Genome( g1.getAllGenes() );
+                            }
+                        }
+
+                        // Alright, so here we mutate everything by chance.
+                        if( Math.random() < Parameters.chanceMutateNode ) {
+                            temp.mutateNode();
+                        }
+                        if( Math.random() < Parameters.chanceMutateLink ) {
+                            temp.mutateLink();
+                        }
+                        if( Math.random() < Parameters.chanceMutateEnable ) {
+                            temp.mutateEnable();
+                        }
+                        if( Math.random() < Parameters.chanceMutateWeight ) {
+                            temp.mutatePoint();
+                        }
+                        if( Math.random() < Parameters.chanceMutateThreshold ) {
+                            temp.mutateThreshold();
+                        }
+                    }
+
+                    newPopulation.add( temp );
+
+                    numSpawnedSoFar += 1;
+
+                    if( numSpawnedSoFar == Parameters.populationSize ) {
+                        numberToSpawn = 0;
+                    }
+                }
+            }
+        }
+
+        return newPopulation;
+
+    }
 
     // TODO: Rewrite this method to accommodate getAllGenes().
     // Compares two genomes to determine whether their different species or not
@@ -103,7 +201,8 @@ public class GenomeManager {
     }
 
     // Given two genomes, returns a new genome made up the crossover of the two input genomes.
-    public static Genome crossover( Genome genome1, Genome genome2 ) {
+    // TODO: Figure out why sometimes, additional input nodes are created.
+    private static Genome crossover( Genome genome1, Genome genome2 ) {
 
         ArrayList<Gene> childGeneList = new ArrayList<>();
 
@@ -192,13 +291,18 @@ public class GenomeManager {
     private static void assignSpawnRequirements( ArrayList<Genome> genomePool ) {
         totalFitness = 0;
         totalAverageFitness = 0;
+        bestFitnessThisGeneration = 0;
         for( Genome genome : genomePool ) {
             totalFitness += genome.getFitness();
             if( genome.getFitness() > bestFitnessEver ) {
                 bestFitnessEver = genome.getFitness();
             }
+            if( genome.getFitness() > bestFitnessThisGeneration ) {
+                bestFitnessThisGeneration = genome.getFitness();
+            }
         }
         totalAverageFitness = totalFitness / genomePool.size();
+        System.out.println( "Average Fitness: " + totalAverageFitness + " | Best Fitness: " + bestFitnessThisGeneration );
 
         for( Genome genome : genomePool ) {
             genome.setSpawnAmount( genome.getFitness() / totalAverageFitness);
@@ -207,22 +311,26 @@ public class GenomeManager {
 
     // Speciation function. Separates individual genomes into their respective species by calculating a
     // compatibility score with every other member of the population.
-    public static void speciate( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
+    private static void speciate( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
 
         // Iterate through each genome and speciate
         for( Genome genome: genomePool ) {
             // Determine whether a genome is the same species as each species leader. If it finds a
             // compatible species, then add it to the species. If no suitabe species if found, then
             // create a new species.
+            boolean added = false;
             for( Species species: speciesPool ) {
                 if( areSpecies( genome, species.getLeader() ) ) {
                     species.addMember( genome );
-                    return;
+                    added = true;
+                    break;
                 }
             }
 
             // If no compatible species is found is really the only
-            speciesPool.add( new Species( genome ) );
+            if( !added ) {
+                speciesPool.add(new Species(genome));
+            }
         }
 
         // Probably should update spawn requirements now.
@@ -233,7 +341,7 @@ public class GenomeManager {
     }
 
     // Method resets some values for the next generation and kills off any poorly performing species.
-    public static void resetAndKill( ArrayList<Species> speciesPool ) {
+    private static void resetAndKill( ArrayList<Species> speciesPool ) {
         totalFitness = 0;
         totalAverageFitness = 0;
 
@@ -247,7 +355,7 @@ public class GenomeManager {
             s.purge();
 
             // Deletes species if its not improving and if it doesn't have the best fitness.
-            if( ( s.getAge() > Parameters.generationsAllowedNoImplovement ) && ( s.getBestFitness() < bestFitnessEver ) ) {
+            if( ( s.getAge() > Parameters.generationsAllowedNoImprovement) && ( s.getBestFitness() < bestFitnessEver ) ) {
                 i.remove();
             }
         }

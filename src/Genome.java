@@ -64,6 +64,9 @@ public class Genome implements Comparable<Genome> {
                 addConnectionGene( (ConnectionGene) g );
             } else if ( g instanceof NodeGene ) {
                 addNodeGene( (NodeGene) g );
+                if( ( (NodeGene) g ).getNodeType() == 2 ) {
+                    outputNodeID = ( (NodeGene) g ).getNodeID();
+                }
             }
         }
     }
@@ -77,7 +80,6 @@ public class Genome implements Comparable<Genome> {
     public void addConnectionGene( int inNode, int outNode, double weight, int innovation, boolean enabled ) {
         connectionGenes.add( new ConnectionGene( inNode, outNode, weight, innovation, enabled ) );
     }
-
     public void addConnectionGene( ConnectionGene gc ) {
         connectionGenes.add( new ConnectionGene( gc.getInNode(), gc.getOutNode(), gc.getWeight(), gc.getInnovation(), gc.isEnabled() ) );
     }
@@ -208,8 +210,21 @@ public class Genome implements Comparable<Genome> {
     // EVALUATION //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    public void calculateFitness( XORExample[] tests ) {
+        fitness = 0;
+
+        // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
+        for( XORExample test : tests ) {
+            if( evaluateGenome( test.getInputs() ) == test.getOutput() ) {
+                fitness += 1;
+            } else {
+                fitness -= 0.5;
+            }
+        }
+    }
     // Evaluates the current neural network for the given inputs.
-    public boolean evaluateGenome( double[] inputs ) {
+    private boolean evaluateGenome( boolean[] inputs ) {
 
         //Attaches inputs to the input nodes
         placeInputs( inputs );
@@ -246,11 +261,11 @@ public class Genome implements Comparable<Genome> {
         // So quickly, and really just to place it here for the future. This function probably needs to be rewritten so
         // to prevent what I'm calling annular layers, three or more hidden nodes which feed into each other and create
         // a ring. This prevents an accurate evaluation of the network, but I'm unclear how to prevent it.
-        return getNodeGene( outputNodeID ).getValue() >= outputThreshold;
+        return getNodeGene( outputNodeID ).getValue() > outputThreshold;
         // This should also check the output versus a value which is evolved...
 
     }
-    public void placeInputs( double[] inputs ) {
+    private void placeInputs( double[] inputs ) {
 
         // Checks to see if there is an adequate number of inputs
         if( inputs.length != getNumOfInputNodes() ) {
@@ -275,7 +290,35 @@ public class Genome implements Comparable<Genome> {
 
         tempInputNodes.clear();
     }
-    public double sigmoid( double x ) {
+    private void placeInputs( boolean[] inputs ) {
+        // Checks to see if there is an adequate number of inputs
+        if( inputs.length < getNumOfInputNodes() ) {
+            System.out.println( "Incorrect number of inputs." );
+            System.out.println( inputs.length + " found, " + getNumOfInputNodes() + " required." );
+            this.reportNodes();
+            System.exit( 666 );
+        }
+
+        // Creates an ArrayList containing only input nodes.
+        ArrayList<NodeGene> tempInputNodes = new ArrayList<>();
+        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
+            if( nodeGenes.get( i ).getNodeType() == 0 ) {
+                tempInputNodes.add( nodeGenes.get( i ) );
+            }
+        }
+
+        // Sets the value for each input node according to input array.
+        for( int i = 0; i < tempInputNodes.size(); i += 1 ) {
+            if( inputs[ i ] == true ) {
+                tempInputNodes.get( i ).setValue( 1.0 );
+            } else {
+                tempInputNodes.get( i ).setValue( 0.0 );
+            }
+        }
+
+        tempInputNodes.clear();
+    }
+    private double sigmoid( double x ) {
         return 2 / ( 1 + Math.exp( -4.9 * x ) ) - 1;
     }
 
@@ -307,8 +350,13 @@ public class Genome implements Comparable<Genome> {
         return nodeGenes;
     }
     public ConnectionGene getConnectionGene( int index, boolean isIndex ) {
+
         if( isIndex ) {
-            return connectionGenes.get( index );
+            if( ( connectionGenes.size() ==  1 ) && ( index == 1 ) ) {
+                return connectionGenes.get( index - 1 );
+            } else {
+                return connectionGenes.get(index);
+            }
         } else {
             for( int i = 0; i < connectionGenes.size(); i += 1 ) {
                 if( connectionGenes.get( i ).getInnovation() == index ) {

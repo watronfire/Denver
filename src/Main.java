@@ -12,10 +12,24 @@ public class Main {
     public static void main(String[] args) {
         ArrayList<Genome> genomePool = new ArrayList<>();
         ArrayList<Species> speciesPool = new ArrayList<>();
-        int population = 50;
-        for( int i = 0; i < population; i++ ) {
-            genomePool.add( new Genome( 5, 2 ) );
+        XORExample[] tests = new XORExample[ 50 ];
+
+        // Generate the genomePool
+        for( int i = 0; i < Parameters.populationSize; i++ ) {
+            genomePool.add( new Genome( 2, 1 ) );
         }
 
+        while( true ) {
+            // Generate the initial XORTests.
+            for (int i = 0; i < tests.length; i += 1) {
+                tests[i] = new XORExample();
+            }
+            // Calculate the finesses.
+            for ( Genome genome : genomePool ) {
+                genome.calculateFitness( tests );
+            }
+            genomePool = GenomeManager.epoch( genomePool, speciesPool );
+
+        }
     }
 }

@@ -111,8 +111,8 @@ public class Species implements Comparable<Species> {
     public Genome getLeader() {
         return leader;
     }
-    public ArrayList<Genome> getSpeciesMembers() {
-        return speciesMembers;
+    public int getNumberOfMembers() {
+        return speciesMembers.size();
     }
     public int getSpeciesID() {
         return speciesID;
