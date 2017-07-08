@@ -139,14 +139,14 @@ public class GenomeManager {
     private static double determineDisjointed( Genome genome1, Genome genome2 )     {
         // Create array of innovation numbers for genome 1
         ArrayList<Integer> innovationG1 = new ArrayList<>();
-        for( int i = 0; i < genome1.getSize(); i += 1 ) {
-            innovationG1.add( genome1.getConnectionGene( i, true ).getInnovation() );
+        for( Gene gene1 : genome1.getAllGenes() ) {
+            innovationG1.add( gene1.getInnovation() );
         }
 
         // Create array of innovation numbers for genome 2
         ArrayList<Integer> innovationG2 = new ArrayList<>();
-        for( int i = 0; i < genome2.getSize(); i += 1 ) {
-            innovationG2.add( genome2.getConnectionGene( i, true ).getInnovation() );
+        for( Gene gene2 : genome2.getAllGenes() ) {
+            innovationG2.add( gene2.getInnovation() );
         }
 
         // Determine innovation numbers which genome1 contains but genome2 doesn't
@@ -172,9 +172,9 @@ public class GenomeManager {
 
         // Create an array of all the innovation numbers of genome1. All genes which are in common between the two
         // will, by definition, be found in genome1.
-        ArrayList<Integer> innovationG1 = new ArrayList<>();
-        for( int i = 0; i < genome2.getSize(); i += 1 ) {
-            innovationG1.add( genome1.getConnectionGene( i, true ).getInnovation() );
+        HashMap<Integer, ConnectionGene> innovationG1 = new HashMap<>();
+        for( ConnectionGene cg : genome1.getAllConnectionGenes() ) {
+            innovationG1.put( cg.getInnovation(), cg );
         }
 
         // Coincidence is the number of genes shared by the two genomes, and sum will hold the difference in weights
@@ -183,11 +183,11 @@ public class GenomeManager {
         double sum = 0;
 
         // Iterate through the innovation numbers in genome1
-        for( int innovation : innovationG1 ) {
+        for( ConnectionGene cg: genome2.getAllConnectionGenes() ) {
             // Determine if the innovation number is found in genome2.
-            if( genome2.getConnectionGene( innovation, false ) != null ) {
+            if( innovationG1.containsKey( cg.getInnovation() ) ) {
                 // Sum is increased by the absolute difference between the weights of the homologous genes.
-                sum += Math.abs( genome1.getConnectionGene(innovation, false).getWeight() - genome2.getConnectionGene(innovation, false).getWeight() );
+                sum += Math.abs( innovationG1.get( cg.getInnovation() ).getWeight() - cg.getWeight() );
                 coincidence += 1;
             }
         }
@@ -265,8 +265,26 @@ public class GenomeManager {
             }
         }
 
+        cleanupGenome( childGeneList );
 
         return new Genome( childGeneList );
+    }
+
+    // Really just removes repetitive innovation numbers.
+    private static void cleanupGenome( ArrayList<Gene> geneList ) {
+        ArrayList<Integer> innovationNums = new ArrayList<>();
+        Iterator<Gene> i = geneList.iterator();
+
+        while( i.hasNext() ) {
+            Gene g = i.next();
+
+            if( innovationNums.contains( g.getInnovation() ) ) {
+                i.remove();
+            } else {
+                innovationNums.add( g.getInnovation() );
+            }
+
+        }
     }
 
     private static ArrayList<Integer> getSimilarInnovation( Genome genome1, Genome genome2 ) {

@@ -224,6 +224,7 @@ public class Genome implements Comparable<Genome> {
         }
     }
     // Evaluates the current neural network for the given inputs.
+    // TODO: rewrite this please, its embarassing. 
     private boolean evaluateGenome( boolean[] inputs ) {
 
         //Attaches inputs to the input nodes
@@ -349,22 +350,8 @@ public class Genome implements Comparable<Genome> {
     public ArrayList<NodeGene> getNodeGenes() {
         return nodeGenes;
     }
-    public ConnectionGene getConnectionGene( int index, boolean isIndex ) {
-
-        if( isIndex ) {
-            if( ( connectionGenes.size() ==  1 ) && ( index == 1 ) ) {
-                return connectionGenes.get( index - 1 );
-            } else {
-                return connectionGenes.get(index);
-            }
-        } else {
-            for( int i = 0; i < connectionGenes.size(); i += 1 ) {
-                if( connectionGenes.get( i ).getInnovation() == index ) {
-                    return connectionGenes.get( i );
-                }
-            }
-            return null;
-        }
+    public ArrayList<ConnectionGene> getAllConnectionGenes() {
+        return connectionGenes;
     }
     public int getNumOfInputNodes() {
         int temp = 0;
