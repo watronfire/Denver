@@ -229,7 +229,7 @@ public class Genome implements Comparable<Genome> {
 
         // First we're going to create all the nodes
         for( NodeGene ng : nodeGenes ) {
-            nodes.put( ng.getNodeID(), new Node( ng.getNodeType(), ng.getNodeID(), ng.getActivationResponse() ) );
+            nodes.put( ng.getNodeID(), new Node( ng.getNodeType(), ng.getNodeID(), ng.getActivationResponse(), ng.getSplitY() ) );
         }
 
         // Now create the links

@@ -26,11 +26,15 @@ public class Node {
     // The curvature of the sigmoid function
     private double activationResponse;
 
+    //Used in determining neural net depth.
+    private double splitY;
+
     //Constructor
-    public Node( int nodeType, int nodeID, double activationResponse ) {
+    public Node( int nodeType, int nodeID, double activationResponse, double splitY ) {
         this.nodeType = nodeType;
         this.nodeID = nodeID;
         this.activationResponse = activationResponse;
+        this.splitY = splitY;
         sumActivation = 0;
         output = 0;
     }
