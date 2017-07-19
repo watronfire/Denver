@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -18,6 +19,8 @@ public class Genome implements Comparable<Genome> {
     private Random rng = new Random();
     private double fitness = 0;
     private double spawnAmount = 0;
+
+    private NeuralNet phenotype;
 
     //////////////////
     // CONSTRUCTORS //
@@ -85,11 +88,11 @@ public class Genome implements Comparable<Genome> {
     }
 
     // Adds a new nodeGene to the genome with defined properties, or a copy of an already present nodeGene
-    public void addNodeGene( int nodeID, int innovation, int nodeType ) {
-        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType ) );
+    public void addNodeGene( int nodeID, int innovation, int nodeType, double activationResponse ) {
+        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType, activationResponse ) );
     }
     public void addNodeGene( NodeGene ng ) {
-        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType() ) );
+        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType(), ng.getActivationResponse() ) );
     }
 
 
@@ -179,7 +182,11 @@ public class Genome implements Comparable<Genome> {
             outputThreshold += rng.nextDouble() * 0.2 - 0.1;
         }
     }
-    // Increases age by one.
+    public void mutateActivationResponse() {
+        int index = rng.nextInt( nodeGenes.size() );
+
+        nodeGenes.get( index ).setActivationResponse( nodeGenes.get( index ).getActivationResponse() + ( rng.nextDouble() * 2 - 1 ) );
+    }
 
     ////////////////////
     // GENOME CLEANUP //
@@ -210,7 +217,34 @@ public class Genome implements Comparable<Genome> {
     // EVALUATION //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Creates a neural net from the genome
+    public NeuralNet createPhenotype( int depth ) {
+        // Make sure no phenotype is already present for this genome
+        // TODO: implement deletePhenotype().
+        //deletePhenotype();
 
+        // ArrayList to hold all the node required for phenotype
+        HashMap<Integer, Node> nodes = new HashMap<>();
+
+        // First we're going to create all the nodes
+        for( NodeGene ng : nodeGenes ) {
+            nodes.put( ng.getNodeID(), new Node( ng.getNodeType(), ng.getNodeID(), ng.getActivationResponse() ) );
+        }
+
+        // Now create the links
+        for( ConnectionGene cg : connectionGenes ) {
+            if( cg.isEnabled() ) {
+                Node inNode = nodes.get( cg.getInNode() );
+                Node outNode = nodes.get( cg.getOutNode() );
+
+                Connection tmpConnection = new Connection( cg.getWeight(), inNode, outNode );
+
+                inNode.addOutgoingConnection( tmpConnection );
+                outNode.addIncomingConnection( tmpConnection );
+            }
+        }
+        return new NeuralNet( nodes.values(), depth );
+    }
     public void calculateFitness( XORExample[] tests ) {
         fitness = 0;
 
@@ -218,13 +252,11 @@ public class Genome implements Comparable<Genome> {
         for( XORExample test : tests ) {
             if( evaluateGenome( test.getInputs() ) == test.getOutput() ) {
                 fitness += 1;
-            } else {
-                fitness -= 0.5;
             }
         }
     }
     // Evaluates the current neural network for the given inputs.
-    // TODO: rewrite this please, its embarassing. 
+    // TODO: rewrite this please, its embarassing.
     private boolean evaluateGenome( boolean[] inputs ) {
 
         //Attaches inputs to the input nodes
@@ -347,9 +379,6 @@ public class Genome implements Comparable<Genome> {
         }
         return null;
     }
-    public ArrayList<NodeGene> getNodeGenes() {
-        return nodeGenes;
-    }
     public ArrayList<ConnectionGene> getAllConnectionGenes() {
         return connectionGenes;
     }
@@ -363,17 +392,13 @@ public class Genome implements Comparable<Genome> {
         return temp;
     }
     // Returns the number of connection genes.
-    public int getSize() {
-        return connectionGenes.size();
-    }
-    // TODO: write fitness function
     public double getFitness() { return fitness; }
     // Returns the number of children this genome should spawn.
     public double getSpawnAmount() { return spawnAmount; }
 
 
     ////////////////////
-    // GETTER METHODS //
+    // SETTER METHODS //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public void setSpawnAmount( double spawnAmount ) {
         this.spawnAmount = spawnAmount;

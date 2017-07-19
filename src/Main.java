@@ -19,11 +19,13 @@ public class Main {
             genomePool.add( new Genome( 2, 1 ) );
         }
 
+        // Generate the initial XORTests.
+        for (int i = 0; i < tests.length; i += 1) {
+            tests[i] = new XORExample();
+        }
+
         while( true ) {
-            // Generate the initial XORTests.
-            for (int i = 0; i < tests.length; i += 1) {
-                tests[i] = new XORExample();
-            }
+
             // Calculate the finesses.
             for ( Genome genome : genomePool ) {
                 genome.calculateFitness( tests );

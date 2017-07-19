@@ -18,8 +18,6 @@ public class Species implements Comparable<Species> {
     private int age;
     private double reproductionRequirements;
 
-    // TODO: complete all this shit below.
-
     public Species( Genome firstGenome ) {
         leader = firstGenome;
         speciesMembers.add( firstGenome );
@@ -118,6 +116,13 @@ public class Species implements Comparable<Species> {
         return speciesID;
     }
     public double getBestFitness() {
+        bestFitness = 0;
+        for( Genome genome : speciesMembers ) {
+            if( genome.getFitness() > bestFitness ) {
+                bestFitness = genome.getFitness();
+                leader = genome;
+            }
+        }
         return bestFitness;
     }
     public double getAverageFitness() {

@@ -97,6 +97,9 @@ public class GenomeManager {
                         if( Math.random() < Parameters.chanceMutateThreshold ) {
                             temp.mutateThreshold();
                         }
+                        if( Math.random() < Parameters.mutationRate ) {
+                            temp.mutateActivationResponse();
+                        }
                     }
 
                     newPopulation.add( temp );
@@ -320,7 +323,8 @@ public class GenomeManager {
             }
         }
         totalAverageFitness = totalFitness / genomePool.size();
-        System.out.println( "Average Fitness: " + totalAverageFitness + " | Best Fitness: " + bestFitnessThisGeneration );
+        //System.out.println( "Average Fitness: " + totalAverageFitness + " | Best Fitness: " + bestFitnessThisGeneration );
+        System.out.println( totalAverageFitness + "," + bestFitnessThisGeneration );
 
         for( Genome genome : genomePool ) {
             genome.setSpawnAmount( genome.getFitness() / totalAverageFitness);
@@ -365,17 +369,18 @@ public class GenomeManager {
 
         // I don't understand anything below here. Not sure why I can't remove when I iterate through a list
         // but I can remove an object in an iterator.
-        Iterator<Species> i = speciesPool.iterator();
-        while( i.hasNext() ) {
-            Species s = i.next();
+        ArrayList<Species> toRemove = new ArrayList<>();
+        for( Species species : speciesPool ) {
 
             // Purges every species
-            s.purge();
+            species.purge();
 
             // Deletes species if its not improving and if it doesn't have the best fitness.
-            if( ( s.getAge() > Parameters.generationsAllowedNoImprovement) && ( s.getBestFitness() < bestFitnessEver ) ) {
-                i.remove();
+            if( ( species.getAge() > Parameters.generationsAllowedNoImprovement) && ( species.getBestFitness() < bestFitnessEver ) ) {
+                toRemove.add( species );
             }
         }
+
+        speciesPool.removeAll( toRemove );
     }
 }

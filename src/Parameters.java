@@ -21,6 +21,7 @@ public class Parameters {
     static double chanceMutateWeight = 0.2;
     static double chanceMutateEnable = 0.1;
     static double chanceMutateThreshold = 0.1;
+    static double mutationRate = 0.1;
     static double maxWeightPerturbation = 0.5;
     static double probabilityWeightReplaced = 0.1;
     static double maxActivationPerturbation = 0.1;
