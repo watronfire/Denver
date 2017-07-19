@@ -32,7 +32,7 @@ public class Genome implements Comparable<Genome> {
         // Create input nodes specified by parameters.
         // nodeNum is a global variable which allows assignment of nodeIDs and is incremented after each node creation.
         for( int i = 0; i < inputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( nodeNum, 0 ) );
+            nodeGenes.add( new NodeGene( nodeNum, 0, 0.0 ) );
             nodeNum += 1;
         }
 
@@ -46,7 +46,7 @@ public class Genome implements Comparable<Genome> {
 
         // Creates output nodes as specified by parameters, incrementing nodeNum each time.
         for( int i = 0; i < outputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( nodeNum, 2 ) );
+            nodeGenes.add( new NodeGene( nodeNum, 2, 1.0 ) );
             outputNodeID = nodeNum;
             nodeNum += 1;
         }
@@ -88,11 +88,11 @@ public class Genome implements Comparable<Genome> {
     }
 
     // Adds a new nodeGene to the genome with defined properties, or a copy of an already present nodeGene
-    public void addNodeGene( int nodeID, int innovation, int nodeType, double activationResponse ) {
-        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType, activationResponse ) );
+    public void addNodeGene( int nodeID, int innovation, int nodeType, double activationResponse, double splitY ) {
+        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType, activationResponse, splitY ) );
     }
     public void addNodeGene( NodeGene ng ) {
-        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType(), ng.getActivationResponse() ) );
+        nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType(), ng.getActivationResponse(), ng.getSplitY() ) );
     }
 
 
@@ -158,7 +158,8 @@ public class Genome implements Comparable<Genome> {
         connectionGenes.get( index ).disable();
 
         // Create the new hidden node, saving its ID number for later use.
-        nodeGenes.add( new NodeGene( nodeNum, 1 ) );
+        double tempSplitY = ( getNodeGene( connectionGenes.get( index ).getInNode() ).getSplitY() + getNodeGene( connectionGenes.get( index ).getOutNode() ).getSplitY() ) / 2;
+        nodeGenes.add( new NodeGene( nodeNum, 1, tempSplitY ) );
         int newNodeID = nodeNum;
         nodeNum += 1;
 
