@@ -90,6 +90,7 @@ public class Species implements Comparable<Species> {
             newGenome = new Genome( speciesMembers.get( 0 ).getAllGenes() );
         } else {
             // Else, selected a genome from the top 20% of the species.
+            // TODO: figure out why an IllegalArgumentException is being thrown here.
             Collections.sort( speciesMembers );
             int maxIndexSize = (int)( Parameters.survivalRate * speciesMembers.size() ) + 1;
             Random ran = new Random();

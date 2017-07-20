@@ -37,7 +37,6 @@ public class Main {
 
         while( true ) {
 
-
             // Calculate the finesses.
             for ( Genome genome : genomePool ) {
                 GenomeManager.calculateNetDepth( genome );

@@ -255,9 +255,12 @@ public class Genome implements Comparable<Genome> {
 
         // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
         for( XORExample test : tests ) {
-            boolean calculatedOutput = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT ) > outputThreshold;
+            double result = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT );
+            boolean calculatedOutput = result > outputThreshold;
             if( calculatedOutput == test.getOutput() ) {
                 fitness += 1;
+            } else {
+                fitness -= Math.abs( result - outputThreshold );
             }
         }
     }
@@ -286,18 +289,10 @@ public class Genome implements Comparable<Genome> {
         }
         return null;
     }
-    public ArrayList<ConnectionGene> getAllConnectionGenes() {
-        return connectionGenes;
+    public ArrayList<NodeGene> getAllNodeGenes() {
+        return nodeGenes;
     }
-    public int getNumOfInputNodes() {
-        int temp = 0;
-        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
-            if( nodeGenes.get( i ).getNodeType() == 0 ) {
-                temp += 1;
-            }
-        }
-        return temp;
-    }
+    public ArrayList<ConnectionGene> getAllConnectionGenes() { return connectionGenes; }
     // Returns the number of connection genes.
     public double getFitness() { return fitness; }
     // Returns the number of children this genome should spawn.
@@ -348,10 +343,6 @@ public class Genome implements Comparable<Genome> {
     // Utter hacky, shouldn't even work.
     public int compareTo(Genome genome) {
         return (int)( this.getFitness() - genome.getFitness() );
-    }
-
-    public ArrayList<NodeGene> getAllNodeGenes() {
-        return nodeGenes;
     }
 
     public void setDepth( int depth ) {
