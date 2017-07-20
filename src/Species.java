@@ -90,7 +90,6 @@ public class Species implements Comparable<Species> {
             newGenome = new Genome( speciesMembers.get( 0 ).getAllGenes() );
         } else {
             // Else, selected a genome from the top 20% of the species.
-            // TODO: figure out why an IllegalArgumentException is being thrown here.
             Collections.sort( speciesMembers );
             int maxIndexSize = (int)( Parameters.survivalRate * speciesMembers.size() ) + 1;
             Random ran = new Random();
@@ -102,8 +101,11 @@ public class Species implements Comparable<Species> {
 
     @Override
     public int compareTo(Species species) {
-        // Hacky as fuck. This probably shouldn't work.
-        return (int) (this.bestFitness - species.bestFitness );
+        if( this.bestFitness < species.getBestFitness() ) {
+            return -1;
+        } else if( species.getBestFitness() < this.bestFitness ) {
+            return 1; }
+        return 0;
     }
 
     // GETTER METHODS

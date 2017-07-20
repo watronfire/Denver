@@ -340,9 +340,15 @@ public class Genome implements Comparable<Genome> {
     }
 
     @Override
-    // Utter hacky, shouldn't even work.
+    // Because the values being compared are doubles, we need to lay out every case.
     public int compareTo(Genome genome) {
-        return (int)( this.getFitness() - genome.getFitness() );
+        if( this.getFitness() < genome.getFitness() ) {
+            return -1;
+        } else if( genome.getFitness() < this.getFitness() ) {
+            return 1;
+        }
+        return 0;
+
     }
 
     public void setDepth( int depth ) {
