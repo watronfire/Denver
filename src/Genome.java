@@ -19,8 +19,10 @@ public class Genome implements Comparable<Genome> {
     private Random rng = new Random();
     private double fitness = 0;
     private double spawnAmount = 0;
+    private int depth;
 
     private NeuralNet phenotype;
+
 
     //////////////////
     // CONSTRUCTORS //
@@ -219,10 +221,10 @@ public class Genome implements Comparable<Genome> {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Creates a neural net from the genome
-    public NeuralNet createPhenotype( int depth ) {
+    public NeuralNet createPhenotype() {
         // Make sure no phenotype is already present for this genome
         // TODO: implement deletePhenotype().
-        //deletePhenotype();
+        phenotype = null;
 
         // ArrayList to hold all the node required for phenotype
         HashMap<Integer, Node> nodes = new HashMap<>();
@@ -244,116 +246,20 @@ public class Genome implements Comparable<Genome> {
                 outNode.addIncomingConnection( tmpConnection );
             }
         }
-        return new NeuralNet( nodes.values(), depth );
+
+        phenotype = new NeuralNet( nodes.values(), depth );
+        return phenotype;
     }
     public void calculateFitness( XORExample[] tests ) {
         fitness = 0;
 
         // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
         for( XORExample test : tests ) {
-            if( evaluateGenome( test.getInputs() ) == test.getOutput() ) {
+            boolean calculatedOutput = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT ) > outputThreshold;
+            if( calculatedOutput == test.getOutput() ) {
                 fitness += 1;
             }
         }
-    }
-    // Evaluates the current neural network for the given inputs.
-    // TODO: rewrite this please, its embarassing.
-    private boolean evaluateGenome( boolean[] inputs ) {
-
-        //Attaches inputs to the input nodes
-        placeInputs( inputs );
-
-        // First iteration through connections. To prevent odd evaluations, connections whose initial node is an input
-        // node are calculated first.
-        // Checks to see if connection is enable and if the initial node is an input node.
-        for( int i = 0; i < connectionGenes.size(); i += 1 ) {
-            if( connectionGenes.get( i ).isEnabled() && getNodeGene( connectionGenes.get( i ).getInNode() ).getNodeType() == 0 ) {
-
-                // Sum is equal to the value of the initial node * the weight of the connection, all wrapped up in a sigmoid function.
-                double sum = 0.0;
-                sum += getNodeGene( connectionGenes.get( i ).getOutNode() ).getValue();
-                sum += sigmoid( getNodeGene( connectionGenes.get( i ).getInNode() ).getValue() * connectionGenes.get( i ).getWeight() );
-                getNodeGene( connectionGenes.get( i ).getOutNode() ).setValue( sum );
-
-            }
-        }
-
-        // Iterate through the connections a second time, getting those that have a hidden node as the initial node.
-        // Only difference between this and the code block above is that conditional statement.
-        for( int i = 0; i < connectionGenes.size(); i += 1 ) {
-            if( connectionGenes.get( i ).isEnabled() && getNodeGene( connectionGenes.get( i ).getInNode() ).getNodeType() != 0 ) {
-
-                // Sum is equal to the value of the initial node * the weight of the connection, all wrapped up in a sigmoid function.
-                double sum = 0.0;
-                sum += getNodeGene( connectionGenes.get( i ).getOutNode() ).getValue();
-                sum += sigmoid( getNodeGene( connectionGenes.get( i ).getInNode() ).getValue() * connectionGenes.get( i ).getWeight() );
-                getNodeGene( connectionGenes.get( i ).getOutNode() ).setValue( sum );
-
-            }
-        }
-
-        // So quickly, and really just to place it here for the future. This function probably needs to be rewritten so
-        // to prevent what I'm calling annular layers, three or more hidden nodes which feed into each other and create
-        // a ring. This prevents an accurate evaluation of the network, but I'm unclear how to prevent it.
-        return getNodeGene( outputNodeID ).getValue() > outputThreshold;
-        // This should also check the output versus a value which is evolved...
-
-    }
-    private void placeInputs( double[] inputs ) {
-
-        // Checks to see if there is an adequate number of inputs
-        if( inputs.length != getNumOfInputNodes() ) {
-            System.out.println( "Incorrect number of inputs." );
-            System.out.println( inputs.length + " found, " + getNumOfInputNodes() + " required." );
-            System.exit( 0 );
-        }
-
-        // Creates an ArrayList containing only input nodes.
-        ArrayList<NodeGene> tempInputNodes = new ArrayList<>();
-        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
-            if( nodeGenes.get( i ).getNodeType() == 0 ) {
-                tempInputNodes.add( nodeGenes.get( i ) );
-            }
-        }
-
-        // Sets the value for each input node according to input array.
-        for( int i = 0; i < tempInputNodes.size(); i += 1 ) {
-            tempInputNodes.get( i ).setValue( inputs[ i ] );
-
-        }
-
-        tempInputNodes.clear();
-    }
-    private void placeInputs( boolean[] inputs ) {
-        // Checks to see if there is an adequate number of inputs
-        if( inputs.length < getNumOfInputNodes() ) {
-            System.out.println( "Incorrect number of inputs." );
-            System.out.println( inputs.length + " found, " + getNumOfInputNodes() + " required." );
-            this.reportNodes();
-            System.exit( 666 );
-        }
-
-        // Creates an ArrayList containing only input nodes.
-        ArrayList<NodeGene> tempInputNodes = new ArrayList<>();
-        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
-            if( nodeGenes.get( i ).getNodeType() == 0 ) {
-                tempInputNodes.add( nodeGenes.get( i ) );
-            }
-        }
-
-        // Sets the value for each input node according to input array.
-        for( int i = 0; i < tempInputNodes.size(); i += 1 ) {
-            if( inputs[ i ] == true ) {
-                tempInputNodes.get( i ).setValue( 1.0 );
-            } else {
-                tempInputNodes.get( i ).setValue( 0.0 );
-            }
-        }
-
-        tempInputNodes.clear();
-    }
-    private double sigmoid( double x ) {
-        return 2 / ( 1 + Math.exp( -4.9 * x ) ) - 1;
     }
 
 
@@ -442,5 +348,13 @@ public class Genome implements Comparable<Genome> {
     // Utter hacky, shouldn't even work.
     public int compareTo(Genome genome) {
         return (int)( this.getFitness() - genome.getFitness() );
+    }
+
+    public ArrayList<NodeGene> getAllNodeGenes() {
+        return nodeGenes;
+    }
+
+    public void setDepth( int depth ) {
+        this.depth = depth;
     }
 }

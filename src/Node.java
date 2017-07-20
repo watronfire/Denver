@@ -55,5 +55,13 @@ public class Node {
     }
     
     public void setOutput( double output ) { this.output = output; }
+    // Used for xor test.
+    public void setOutput( boolean output ) {
+        if( output == true ) {
+              this.output = 1.0;
+        } else {
+            this.output = 0.0;
+        }
+    }
 
 }

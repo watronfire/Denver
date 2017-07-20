@@ -16,6 +16,8 @@ public class GenomeManager {
     private static double totalFitness;
     private static double bestFitnessEver;
     private static double bestFitnessThisGeneration;
+    // Static HashMap where the integer value is the depth associated with a double key representing the SplitY.
+    private static HashMap<Double, Integer> splits = new HashMap<>();
 
     // This functions ties everything together. Performs one epoch of the genetic algorithm and returns a
     // an ArrayList of new genomes.
@@ -115,6 +117,50 @@ public class GenomeManager {
 
         return newPopulation;
 
+    }
+
+    // Searches the lookup table (i.e. HashMap) and sets the maximum depth found in a network
+    public static void calculateNetDepth( Genome genome ) {
+        int maxSoFar = 0;
+
+        // Determine the maximum depth.
+        for( NodeGene ng : genome.getAllNodeGenes() ) {
+
+            try {
+                if ((ng.getSplitY() != 0.0) && splits.get(ng.getSplitY()) > maxSoFar) {
+                    maxSoFar = splits.get(ng.getSplitY());
+                }
+            } catch ( NullPointerException n ) {
+
+                // TODO: Sometimes this is thrown because a neural net becomes too deep. So at some point I need to limit nodes.
+                // For now, we're just going to ignore those nets and hope they're removed.
+
+                System.out.println( "SplitY: " + ng.getSplitY() );
+                System.out.println( "MaxSoFar: " + maxSoFar );
+            }
+        }
+
+        // Super hacky, might as well put this as maxSoFar * 2.
+        // TODO: figure out if this can be improved.
+        genome.setDepth( maxSoFar + 2 );
+
+    }
+
+    // Creates a lookup table that is used to calculate the depth of a network.
+    public static void split( double low, double high, int depth ) {
+        double span = high - low;
+
+        splits.put( low + span / 2.0, depth + 1);
+
+        if( !( depth > 6 ) ) {
+            split( low, low + span / 2, depth + 1 );
+            split( low + span / 2, high, depth + 1 );
+        }
+    }
+
+    // Hacky because I don't know how to do this in the actual split() method. Need to add this value.
+    public static void splitAddendum() {
+        splits.put( 1.0, 1 );
     }
 
     // TODO: Rewrite this method to accommodate getAllGenes().

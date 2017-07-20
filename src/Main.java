@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
 
@@ -9,7 +11,16 @@ public class Main {
     //                                                                                         //
     /////////////////////////////////////////////////////////////////////////////////////////////
 
+    // Static hashmap where the value is the depth associated with a double value representing the SplitY
+
     public static void main(String[] args) {
+
+        // Must initialize the SplitY:Depth loopup table
+        GenomeManager.split( 0, 1, 0 );
+        // Hacky
+        GenomeManager.splitAddendum();
+
+
         ArrayList<Genome> genomePool = new ArrayList<>();
         ArrayList<Species> speciesPool = new ArrayList<>();
         XORExample[] tests = new XORExample[ 50 ];
@@ -26,12 +37,16 @@ public class Main {
 
         while( true ) {
 
+
             // Calculate the finesses.
             for ( Genome genome : genomePool ) {
+                GenomeManager.calculateNetDepth( genome );
+                genome.createPhenotype();
                 genome.calculateFitness( tests );
             }
             genomePool = GenomeManager.epoch( genomePool, speciesPool );
 
         }
     }
+
 }
