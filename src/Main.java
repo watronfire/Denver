@@ -39,6 +39,8 @@ public class Main {
 
             // Calculate the finesses.
             for ( Genome genome : genomePool ) {
+                // One day maybe...
+                genome.cullConnections();
                 GenomeManager.calculateNetDepth( genome );
                 genome.createPhenotype();
                 genome.calculateFitness( tests );

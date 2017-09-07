@@ -90,7 +90,8 @@ public class Species implements Comparable<Species> {
             newGenome = new Genome( speciesMembers.get( 0 ).getAllGenes() );
         } else {
             // Else, selected a genome from the top 20% of the species.
-            Collections.sort( speciesMembers );
+            // Need to sort in descending order though.
+            Collections.sort( speciesMembers, Collections.reverseOrder() );
             int maxIndexSize = (int)( Parameters.survivalRate * speciesMembers.size() ) + 1;
             Random ran = new Random();
             newGenome = new Genome( speciesMembers.get( ran.nextInt( maxIndexSize ) ).getAllGenes() );

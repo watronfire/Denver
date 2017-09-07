@@ -147,30 +147,87 @@ public class Genome implements Comparable<Genome> {
     }
     // Randomly adds a new node to the network by disabling a connection, replacing it with a connection of weight 1, a
     // hidden node, and a connection of the same weight as the disabled connection
+    // TODO: The genetic algorithm seems to favor create lots and lots of nodes/connections with this method.
+    // so a limiter needs to be implemented if the number of connections is greater than some limit.
     public void mutateNode() {
 
-        // Check to made sure there are connections which can be mutated.
-        if( connectionGenes.size() == 0 ) {
-            return;
+        int attempts = 5;
+
+        ConnectionGene chosenGene = null;
+
+        boolean isDone = false;
+        int chosenLink;
+        Random rdm = new Random();
+
+        //We need to choose a connectionGene to mutate. If the genome is small then one of the older links
+        // should be split so as to avoid a chaining effect. A genome is considered small if it has less
+        // than 5 hidden neurons.
+        if( GenomeManager.determineHiddenNodes( nodeGenes ) < Parameters.sizeThreshold ) {
+            while( attempts >= 0 ) {
+
+                if ( connectionGenes.size() == 0 ) {
+                    return;
+                } else if ( connectionGenes.size() == 1 ) {
+                    chosenGene = connectionGenes.get( 0 );
+                    isDone = true;
+                    attempts = -1;
+                } else {
+                    chosenLink = rdm.nextInt( connectionGenes.size() - (int) Math.sqrt( connectionGenes.size() ) );
+                    chosenGene = connectionGenes.get( chosenLink );
+                    if ( chosenGene.isEnabled() ) {
+                        isDone = true;
+                        attempts = -1;
+                    }
+                }
+                attempts -= 1;
+            }
+            if( !isDone ) {
+                // Essentially failed to find a gene
+                return;
+            }
+        } else {
+
+            // Everything in this block is for genomes which have reached the 5 hidden node size threshold
+
+            // Check to made sure there are connections which can be mutated.
+            if (connectionGenes.size() == 0) {
+                return;
+            }
+
+            while( !isDone ) {
+                if( attempts < 0 ) {
+                    return;
+                }
+
+                chosenLink = rdm.nextInt(connectionGenes.size());
+                chosenGene = connectionGenes.get(chosenLink);
+
+                if (chosenGene.isEnabled()) {
+                    isDone = true;
+                }
+
+                attempts -= 1;
+            }
+
         }
 
+
         // Select the connection to be mutated, save its weight, and disable it.
-        int index = rng.nextInt( connectionGenes.size() );
-        double oldWeight = connectionGenes.get( index ).getWeight();
-        connectionGenes.get( index ).disable();
+        double oldWeight = chosenGene.getWeight();
+        chosenGene.disable();
 
         // Create the new hidden node, saving its ID number for later use.
-        double tempSplitY = ( getNodeGene( connectionGenes.get( index ).getInNode() ).getSplitY() + getNodeGene( connectionGenes.get( index ).getOutNode() ).getSplitY() ) / 2;
+        double tempSplitY = ( getNodeGene( chosenGene.getInNode() ).getSplitY() + getNodeGene( chosenGene.getOutNode() ).getSplitY() ) / 2;
         nodeGenes.add( new NodeGene( nodeNum, 1, tempSplitY ) );
         int newNodeID = nodeNum;
         nodeNum += 1;
 
         // Create a connection between the input of the old connection, and the new hidden node, with weight 1.
-        connectionGenes.add( new ConnectionGene( connectionGenes.get( index ).getInNode(), newNodeID, 1.0 ) );
+        connectionGenes.add( new ConnectionGene( chosenGene.getInNode(), newNodeID, 1.0 ) );
 
         // Create a connection from the new hidden node to the output of the old connection with weight equal to the old
         // connection's weight.
-        connectionGenes.add( new ConnectionGene( newNodeID, connectionGenes.get( index ).getOutNode(), oldWeight ) );
+        connectionGenes.add( new ConnectionGene(newNodeID, chosenGene.getOutNode(), oldWeight ) );
 
     }
     // Chooses a random connection and switched its enabled status
@@ -276,7 +333,7 @@ public class Genome implements Comparable<Genome> {
         temp.addAll( connectionGenes );
         temp.addAll( nodeGenes );
 
-        // Since all genes are comparable, you can use sort on them!
+        // Since all genes are comparable, you can use sort on them! Sort in ascending order, iIthink.
         Collections.sort( temp );
         return temp;
     }
@@ -341,10 +398,11 @@ public class Genome implements Comparable<Genome> {
 
     @Override
     // Because the values being compared are doubles, we need to lay out every case.
-    public int compareTo(Genome genome) {
+    public int compareTo( Genome genome ) {
+        // I don't understand which direction these should be.
         if( this.getFitness() < genome.getFitness() ) {
             return -1;
-        } else if( genome.getFitness() < this.getFitness() ) {
+        } else if( this.getFitness() > genome.getFitness() ) {
             return 1;
         }
         return 0;

@@ -32,4 +32,5 @@ public class Parameters {
     static int youngBonusAgeThreshhold = 10;
     static double crossoverRate = 0.7;
     static int maxNumberOfSpecies = 0;
+    static int sizeThreshold = 5;
 }

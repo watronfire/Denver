@@ -120,7 +120,7 @@ public class GenomeManager {
     }
 
     // Searches the lookup table (i.e. HashMap) and sets the maximum depth found in a network
-    public static void calculateNetDepth( Genome genome ) {
+    public static void calculateNetDepth( Genome genome )   {
         int maxSoFar = 0;
 
         // Determine the maximum depth.
@@ -428,5 +428,15 @@ public class GenomeManager {
         }
 
         speciesPool.removeAll( toRemove );
+    }
+
+    public static int determineHiddenNodes( ArrayList<NodeGene> nodeGenes ) {
+        int output = 0;
+        for( NodeGene ng : nodeGenes ) {
+            if( ng.getNodeType() == 1 ) {
+                output += 1;
+            }
+        }
+        return output;
     }
 }
