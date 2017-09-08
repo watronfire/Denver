@@ -61,7 +61,7 @@ public class NeuralNet {
                 node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
 
                 if( node.getNodeType() == 2 ) {
-                    outputs = node.getOutput();
+                    outputs += node.getOutput();
                 }
             }
         }
@@ -74,7 +74,7 @@ public class NeuralNet {
 
         return outputs;
     }
-
+/*
     public double update( ArrayList<Double> inputs, runtype type ) {
 
         // Create and ArrayList to put the outputs into
@@ -133,6 +133,7 @@ public class NeuralNet {
 
         return outputs;
     }
+*/
 
     public double sigmoid( double input, double activationResponse ) {
         return ( 1.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );

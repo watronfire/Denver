@@ -9,7 +9,7 @@ public class Parameters {
     static int sweeperScale = 2;
     static int numSensors = 5;
     static double sensorRange = 15;
-    static int populationSize = 150;
+    static int populationSize = 100;
     static int numTicks = 5000;
     static double cellSize = 5;
     static int numAddLinkAttempts = 5;

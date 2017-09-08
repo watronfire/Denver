@@ -18,8 +18,10 @@ public class Genome implements Comparable<Genome> {
     private double outputThreshold = 0.5;
     private Random rng = new Random();
     private double fitness = 0;
+    private double adjustedFitness = 0;
     private double spawnAmount = 0;
     private int depth;
+    private double odds;
 
     private NeuralNet phenotype;
 
@@ -82,17 +84,11 @@ public class Genome implements Comparable<Genome> {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Adds a new connectionGene to the genome with defined properties, also can be used to copy a connectionGene
-    public void addConnectionGene( int inNode, int outNode, double weight, int innovation, boolean enabled ) {
-        connectionGenes.add( new ConnectionGene( inNode, outNode, weight, innovation, enabled ) );
-    }
     public void addConnectionGene( ConnectionGene gc ) {
         connectionGenes.add( new ConnectionGene( gc.getInNode(), gc.getOutNode(), gc.getWeight(), gc.getInnovation(), gc.isEnabled() ) );
     }
 
     // Adds a new nodeGene to the genome with defined properties, or a copy of an already present nodeGene
-    public void addNodeGene( int nodeID, int innovation, int nodeType, double activationResponse, double splitY ) {
-        nodeGenes.add( new NodeGene( nodeID, innovation, nodeType, activationResponse, splitY ) );
-    }
     public void addNodeGene( NodeGene ng ) {
         nodeGenes.add( new NodeGene( ng.getNodeID(), ng.getInnovation(), ng.getNodeType(), ng.getActivationResponse(), ng.getSplitY() ) );
     }
@@ -309,16 +305,18 @@ public class Genome implements Comparable<Genome> {
     }
     public void calculateFitness( XORExample[] tests ) {
         fitness = 0;
-
+        int falseAnswers = 1;
+        int trueAnswers = 1;
         // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
         for( XORExample test : tests ) {
             double result = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT );
-            boolean calculatedOutput = result > outputThreshold;
+            boolean calculatedOutput = result < outputThreshold;
             if( calculatedOutput == test.getOutput() ) {
                 fitness += 1;
-            } else {
-                fitness -= Math.abs( result - outputThreshold );
-            }
+            } //else {
+                //fitness -= Math.abs( result - outputThreshold );
+            //}
+
         }
     }
 
@@ -351,9 +349,10 @@ public class Genome implements Comparable<Genome> {
     }
     public ArrayList<ConnectionGene> getAllConnectionGenes() { return connectionGenes; }
     // Returns the number of connection genes.
-    public double getFitness() { return fitness; }
+    public double getFitness( int i ) { return fitness; }
     // Returns the number of children this genome should spawn.
     public double getSpawnAmount() { return spawnAmount; }
+    public double getAdjustedFitness() { return adjustedFitness; }
 
 
     ////////////////////
@@ -362,6 +361,8 @@ public class Genome implements Comparable<Genome> {
     public void setSpawnAmount( double spawnAmount ) {
         this.spawnAmount = spawnAmount;
     }
+    public void setAdjustedFitness( double adjustedFitness ) { this.adjustedFitness = adjustedFitness; }
+    public void setFitness( double fitness ) { this.fitness = fitness; }
 
     //////////////////////
     // REPORTER METHODS //
@@ -400,9 +401,9 @@ public class Genome implements Comparable<Genome> {
     // Because the values being compared are doubles, we need to lay out every case.
     public int compareTo( Genome genome ) {
         // I don't understand which direction these should be.
-        if( this.getFitness() < genome.getFitness() ) {
+        if( this.getFitness(1) < genome.getFitness(1) ) {
             return -1;
-        } else if( this.getFitness() > genome.getFitness() ) {
+        } else if( this.getFitness(1) > genome.getFitness(1) ) {
             return 1;
         }
         return 0;

@@ -62,7 +62,6 @@ abstract class Gene implements Comparable<Gene> {
         return innovation;
     }
 
-
     // Method responsible for comparing two gene objects. Needs to be done so that arrayList of gene objects can be
     // sorted.
     @Override

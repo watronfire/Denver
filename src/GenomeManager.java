@@ -270,7 +270,7 @@ public class GenomeManager {
 
         // Determines which genome has the greater fitness
         // If they have the same fitness than genes will be randomly selected from both.
-        if( genome1.getFitness() == genome2.getFitness() ) {
+        if( genome1.getFitness(1) == genome2.getFitness(1) ) {
 
             Random random = new Random();
 
@@ -294,7 +294,7 @@ public class GenomeManager {
             }
 
         // If genome1 fitness is greater, then it's genes will be added to the childGenome instead of genome2
-        } else if( genome1.getFitness() > genome2.getFitness() ) {
+        } else if( genome1.getFitness(1) > genome2.getFitness(1) ) {
             for( int i : innovationTotal ) {
                 if( parent1.containsKey( i ) ) {
                     childGeneList.add( parent1.get( i ) );
@@ -359,21 +359,31 @@ public class GenomeManager {
         totalFitness = 0;
         totalAverageFitness = 0;
         bestFitnessThisGeneration = 0;
+        double bestUnAdjFit = 0;
+        Genome bestGenome = null;
+
+        // Iterate through every genome
         for( Genome genome : genomePool ) {
-            totalFitness += genome.getFitness();
-            if( genome.getFitness() > bestFitnessEver ) {
-                bestFitnessEver = genome.getFitness();
+
+            // Add the adjusted fitness of the genome to the totalFitness
+            totalFitness += genome.getAdjustedFitness();
+            if( genome.getAdjustedFitness() > bestFitnessEver ) {
+                bestFitnessEver = genome.getAdjustedFitness();
             }
-            if( genome.getFitness() > bestFitnessThisGeneration ) {
-                bestFitnessThisGeneration = genome.getFitness();
+            if( genome.getAdjustedFitness() > bestFitnessThisGeneration ) {
+                bestFitnessThisGeneration = genome.getAdjustedFitness();
+            }
+            if( genome.getFitness( 1 ) > bestUnAdjFit ) {
+                bestUnAdjFit = genome.getFitness( 1 );
+                bestGenome = genome;
             }
         }
         totalAverageFitness = totalFitness / genomePool.size();
         //System.out.println( "Average Fitness: " + totalAverageFitness + " | Best Fitness: " + bestFitnessThisGeneration );
-        System.out.println( totalAverageFitness + "," + bestFitnessThisGeneration );
+        System.out.println( totalAverageFitness + "," + bestUnAdjFit );
 
         for( Genome genome : genomePool ) {
-            genome.setSpawnAmount( genome.getFitness() / totalAverageFitness);
+            genome.setSpawnAmount( genome.getAdjustedFitness() / totalAverageFitness );
         }
     }
 
@@ -402,10 +412,18 @@ public class GenomeManager {
         }
 
         // Probably should update spawn requirements now.
+        adjustSpeciesFitness( speciesPool );
         assignSpawnRequirements( genomePool );
         for( Species species : speciesPool ) {
             species.calculateSpawnAmount();
         }
+    }
+
+    private static void adjustSpeciesFitness( ArrayList<Species> speciesPool ) {
+        for( Species species: speciesPool ) {
+            species.adjustFitness();
+        }
+
     }
 
     // Method resets some values for the next generation and kills off any poorly performing species.

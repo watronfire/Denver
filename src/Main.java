@@ -23,29 +23,47 @@ public class Main {
 
         ArrayList<Genome> genomePool = new ArrayList<>();
         ArrayList<Species> speciesPool = new ArrayList<>();
-        XORExample[] tests = new XORExample[ 50 ];
+        XORExample[] tests = new XORExample[ 100 ];
 
         // Generate the genomePool
         for( int i = 0; i < Parameters.populationSize; i++ ) {
             genomePool.add( new Genome( 2, 1 ) );
         }
 
-        // Generate the initial XORTests.
-        for (int i = 0; i < tests.length; i += 1) {
-            tests[i] = new XORExample();
-        }
+        int count = 0;
+        double trueAnswers;
 
         while( true ) {
 
+            trueAnswers = 0;
+
+            // Generate the XORTests for this epoch
+            for ( int i = 0; i < tests.length; i += 1 ) {
+                tests[i] = new XORExample();
+                if( tests[i].getOutput() ) {
+                    trueAnswers += 1;
+                }
+
+            }
+
+
+
+            System.out.print( count + "," + ( trueAnswers / 100 ) + ',' );
             // Calculate the finesses.
             for ( Genome genome : genomePool ) {
                 // One day maybe...
-                genome.cullConnections();
+                // genome.cullConnections();
                 GenomeManager.calculateNetDepth( genome );
                 genome.createPhenotype();
                 genome.calculateFitness( tests );
             }
             genomePool = GenomeManager.epoch( genomePool, speciesPool );
+
+            for( Species species : speciesPool ) {
+                species.incrementAge();
+            }
+
+            count += 1;
 
         }
     }

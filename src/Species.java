@@ -23,8 +23,8 @@ public class Species implements Comparable<Species> {
         speciesMembers.add( firstGenome );
         speciesID = globalSpeciesID;
         globalSpeciesID += 1;
-        bestFitness = leader.getFitness();
-        averageFitness = leader.getFitness();
+        bestFitness = leader.getFitness(1);
+        averageFitness = leader.getFitness(1);
         timeSinceImprovement = 0;
         age = 0;
 
@@ -49,8 +49,8 @@ public class Species implements Comparable<Species> {
         // the current best.
         speciesMembers.add( newGenome );
         updateAverageFitness();
-        if( newGenome.getFitness() > bestFitness ) {
-            bestFitness = newGenome.getFitness();
+        if( newGenome.getFitness(1) > bestFitness ) {
+            bestFitness = newGenome.getFitness(1);
             leader = newGenome;
             timeSinceImprovement = 0;
         }
@@ -60,7 +60,7 @@ public class Species implements Comparable<Species> {
     private void updateAverageFitness() {
         averageFitness = 0;
         for( Genome genome : speciesMembers ) {
-            averageFitness += genome.getFitness();
+            averageFitness += genome.getFitness(1);
         }
         averageFitness = averageFitness / speciesMembers.size();
     }
@@ -99,6 +99,31 @@ public class Species implements Comparable<Species> {
         return newGenome;
     }
 
+    // Boosts the fitnesses of the young, penalizes the fitnesses of the old, and then performs fitness sharing over
+    // all members of the species.
+    public void adjustFitness() {
+        double total = 0;
+
+        for( Genome genome : speciesMembers ) {
+            double fitness = genome.getFitness( 1 );
+
+            // We want to boost the fitness scores if the species is young
+            if( age < Parameters.youngBonusAgeThreshhold ) {
+                fitness *= Parameters.youngFitnessBonus;
+            }
+
+            // We also want to punish older species
+            if( age > Parameters.oldAgeThreshold ) {
+                fitness *= Parameters.oldAgePenalty;
+            }
+
+            total += fitness;
+
+            genome.setAdjustedFitness( fitness / speciesMembers.size() );
+        }
+
+    }
+
 
     @Override
     public int compareTo(Species species) {
@@ -122,8 +147,8 @@ public class Species implements Comparable<Species> {
     public double getBestFitness() {
         bestFitness = 0;
         for( Genome genome : speciesMembers ) {
-            if( genome.getFitness() > bestFitness ) {
-                bestFitness = genome.getFitness();
+            if( genome.getFitness(1) > bestFitness ) {
+                bestFitness = genome.getFitness(1);
                 leader = genome;
             }
         }
