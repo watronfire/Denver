@@ -47,7 +47,7 @@ abstract class Gene implements Comparable<Gene> {
         } else if( gene instanceof NodeGene ) {
             List<Integer> temp = new ArrayList<>();
             temp.add( ((NodeGene) gene).getNodeID() );
-            temp.add( ((NodeGene) gene).getNodeType() );
+            temp.add( ((NodeGene) gene).getNodeTypeInt() );
             if( nodeInnovations.containsKey( temp ) ) {
                 return nodeInnovations.get( temp );
             } else {

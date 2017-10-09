@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by nate on 3/29/17.
@@ -30,37 +27,38 @@ public class Genome implements Comparable<Genome> {
     // CONSTRUCTORS //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Constructor, only used once so I can be kinda hacky.
+    // Constructor when creating a genome from scratch.
     public Genome( int inputs, int outputs ) {
+        NodeGene[] inputNodes = new NodeGene[ inputs + 1 ];
+        NodeGene[] outputNodes = new NodeGene[ outputs ];
 
-        // Create input nodes specified by parameters.
-        // nodeNum is a global variable which allows assignment of nodeIDs and is incremented after each node creation.
+        // Create input nodes as specified by parameters
         for( int i = 0; i < inputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( nodeNum, 0, 0.0 ) );
+            inputNodes[ i ] = new NodeGene( nodeNum, NodeGene.nodeType.INPUT, 0.0 );
             nodeNum += 1;
         }
 
-        // Save a single input node to make a connection later.
-        NodeGene ngTempInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
+        // Create a bias node
+        inputNodes[ inputs ] = new NodeGene( nodeNum, NodeGene.nodeType.BIAS, 0.0 );
+        nodeNum += 1;
 
-        // After input nodes are created, the output nodes will be created. One input and output node need to be save,
-        // to make a connection between later. We save the nodeNum at which this split occurs so we can select an output
-        // node later
-        int inputOutputSplit = nodeNum;
-
-        // Creates output nodes as specified by parameters, incrementing nodeNum each time.
+        // Create output nodes as specified by parameters
         for( int i = 0; i < outputs; i += 1 ) {
-            nodeGenes.add( new NodeGene( nodeNum, 2, 1.0 ) );
-            outputNodeID = nodeNum;
+            outputNodes[ i ] = new NodeGene( nodeNum, NodeGene.nodeType.OUTPUT, 1.0 );
             nodeNum += 1;
         }
 
-        // Save a single output node to make a connection later.
-        NodeGene ngTempTerminus = nodeGenes.get( rng.nextInt( outputs ) + inputOutputSplit - 1 );
+        // Connect all input nodes and bias nodes to output nodes.
+        for( NodeGene in : inputNodes ) {
+            for( NodeGene on : outputNodes ) {
+                connectionGenes.add( new ConnectionGene( in.getNodeID(), on.getNodeID() ) );
+            }
+        }
 
-        // Create a connection with the save input and output node. Increasing the global innovation number by one.
-        // The innovation number will be used later for crossover events.
-        connectionGenes.add( new ConnectionGene( ngTempInitial.getNodeID(), ngTempTerminus.getNodeID() ) );
+        // Add the nodes to the nodeGenes ArrayList
+        nodeGenes.addAll( Arrays.asList( inputNodes ) );
+        nodeGenes.addAll( Arrays.asList( outputNodes ) );
+
 
     }
 
@@ -71,7 +69,7 @@ public class Genome implements Comparable<Genome> {
                 addConnectionGene( (ConnectionGene) g );
             } else if ( g instanceof NodeGene ) {
                 addNodeGene( (NodeGene) g );
-                if( ( (NodeGene) g ).getNodeType() == 2 ) {
+                if( ( (NodeGene) g ).getNodeType() == NodeGene.nodeType.OUTPUT ) {
                     outputNodeID = ( (NodeGene) g ).getNodeID();
                 }
             }
@@ -113,21 +111,23 @@ public class Genome implements Comparable<Genome> {
             connectionGenes.get( index ).setWeight( oldWeight + rng.nextDouble() * 0.2 - 0.1);
         }
 
+        //System.out.println( "Point Mutated" );
+
     }
     // Randomly add a new connection to the network with a random weight. Problematic because nodes can only be
     // connected in a forward manner.
     public void mutateLink() {
 
-        // Pick an initial node. Can only be input or hidden node.
+        // Pick an initial node. Can only be input, hidden, or bias node.
         NodeGene nodeInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
-        while( nodeInitial.getNodeType() == 2 ) {
+        while( nodeInitial.getNodeType() == NodeGene.nodeType.OUTPUT ) {
             nodeInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
         }
 
         // Pick a terminus. Again, must be connected in a forward manner, so output must be hidden or output.
         // This loop will also make sure that the same node isn't both initial node and terminus.
         NodeGene nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
-        while( nodeTerminus.getNodeType() == 0 || nodeTerminus.getNodeID() == nodeInitial.getNodeID() ) {
+        while( nodeTerminus.getNodeType() == NodeGene.nodeType.INPUT || nodeTerminus.getNodeID() == nodeInitial.getNodeID() ) {
             nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
         }
 
@@ -139,6 +139,7 @@ public class Genome implements Comparable<Genome> {
 
         // If the program makes it to this point then the connection is made and given an innovation number.
         connectionGenes.add( new ConnectionGene( nodeInitial.getNodeID(), nodeTerminus.getNodeID() ) );
+        //System.out.println( "Link Mutated" );
 
     }
     // Randomly adds a new node to the network by disabling a connection, replacing it with a connection of weight 1, a
@@ -214,7 +215,7 @@ public class Genome implements Comparable<Genome> {
 
         // Create the new hidden node, saving its ID number for later use.
         double tempSplitY = ( getNodeGene( chosenGene.getInNode() ).getSplitY() + getNodeGene( chosenGene.getOutNode() ).getSplitY() ) / 2;
-        nodeGenes.add( new NodeGene( nodeNum, 1, tempSplitY ) );
+        nodeGenes.add( new NodeGene( nodeNum, NodeGene.nodeType.HIDDEN, tempSplitY ) );
         int newNodeID = nodeNum;
         nodeNum += 1;
 
@@ -224,11 +225,13 @@ public class Genome implements Comparable<Genome> {
         // Create a connection from the new hidden node to the output of the old connection with weight equal to the old
         // connection's weight.
         connectionGenes.add( new ConnectionGene(newNodeID, chosenGene.getOutNode(), oldWeight ) );
+        //System.out.println( "Node Mutated" );
 
     }
     // Chooses a random connection and switched its enabled status
     public void mutateEnable() {
         connectionGenes.get( rng.nextInt( connectionGenes.size() ) ).swapStatus();
+        //System.out.println( "Enable Mutated" );
     }
     // Mutates the output threshold by either setting to a random double or adjusting slightly.
     public void mutateThreshold() {
@@ -237,11 +240,15 @@ public class Genome implements Comparable<Genome> {
         } else {
             outputThreshold += rng.nextDouble() * 0.2 - 0.1;
         }
+
+        //System.out.println( "Threshold Mutated" );
     }
     public void mutateActivationResponse() {
         int index = rng.nextInt( nodeGenes.size() );
 
         nodeGenes.get( index ).setActivationResponse( nodeGenes.get( index ).getActivationResponse() + ( rng.nextDouble() * 2 - 1 ) );
+
+        //System.out.println( "Activation Response Mutated" );
     }
 
     ////////////////////
@@ -274,7 +281,7 @@ public class Genome implements Comparable<Genome> {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Creates a neural net from the genome
-    public NeuralNet createPhenotype() {
+    public void createPhenotype() {
         // Make sure no phenotype is already present for this genome
         // TODO: implement deletePhenotype().
         phenotype = null;
@@ -284,7 +291,7 @@ public class Genome implements Comparable<Genome> {
 
         // First we're going to create all the nodes
         for( NodeGene ng : nodeGenes ) {
-            nodes.put( ng.getNodeID(), new Node( ng.getNodeType(), ng.getNodeID(), ng.getActivationResponse(), ng.getSplitY() ) );
+            nodes.put( ng.getNodeID(), new Node( ng.getNodeType(), ng.getNodeID(), ng.getActivationResponse() ) );
         }
 
         // Now create the links
@@ -301,7 +308,6 @@ public class Genome implements Comparable<Genome> {
         }
 
         phenotype = new NeuralNet( nodes.values(), depth );
-        return phenotype;
     }
     public void calculateFitness( XORExample[] tests ) {
         fitness = 0;
@@ -318,6 +324,14 @@ public class Genome implements Comparable<Genome> {
             //}
 
         }
+    }
+    // Useless method for determining where the problem is
+    public void calculateFitness( XORExample test ) {
+        double result = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT );
+
+        boolean calculatedOutput = result > outputThreshold;
+        System.out.print( "Result: " + result + " | Output Threshold: " + outputThreshold + " | Calculated Output: " + calculatedOutput );
+
     }
 
 
@@ -353,7 +367,11 @@ public class Genome implements Comparable<Genome> {
     // Returns the number of children this genome should spawn.
     public double getSpawnAmount() { return spawnAmount; }
     public double getAdjustedFitness() { return adjustedFitness; }
+    public double getDepth() { return depth; }
 
+    public NeuralNet getPhenotype() {
+        return phenotype;
+    }
 
     ////////////////////
     // SETTER METHODS //
@@ -373,18 +391,20 @@ public class Genome implements Comparable<Genome> {
     public void reportNodes() {
         String type;
 
-        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
-            switch( nodeGenes.get( i ).getNodeType() ) {
-                case 0: type = "Input";
+        for( NodeGene ng : nodeGenes ) {
+            switch( ng.getNodeType() ) {
+                case INPUT: type = "Input";
                     break;
-                case 1: type = "Hidden";
+                case HIDDEN: type = "Hidden";
                     break;
-                case 2: type = "Output";
+                case OUTPUT: type = "Output";
+                    break;
+                case BIAS: type = "Bias";
                     break;
                 default: type = "Invalid Type";
                     break;
             }
-            System.out.println( "NodeID: " + nodeGenes.get( i ).getNodeID() + " | NodeType: " + type + " | Innovation: " + nodeGenes.get( i ).getInnovation() );
+            System.out.println( "NodeID: " + ng.getNodeID() + " | NodeType: " + type + " | Innovation: " + ng.getInnovation() );
         }
     }
     public void reportConnections() {
@@ -395,6 +415,9 @@ public class Genome implements Comparable<Genome> {
             System.out.println( "Weight: " + connectionGenes.get( i ).getWeight() + " | Enabled: " + connectionGenes.get( i ).isEnabled() + " | Innovation: " + connectionGenes.get( i ).getInnovation() );
 
         }
+    }
+    public void reportPhenotypeNodes() {
+        phenotype.reportNodes();
     }
 
     @Override

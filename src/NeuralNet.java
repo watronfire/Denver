@@ -4,7 +4,6 @@ import java.util.Collection;
 /**
  * Created by nate on 7/8/17.
  */
-// TODO: determine how to implement depth. I've got no idea.
 public class NeuralNet {
 
     private ArrayList<Node> nodes = new ArrayList<>();
@@ -16,6 +15,9 @@ public class NeuralNet {
         this.depth = depth;
     }
 
+
+    // TODO: this method is still shit and needs to be rewritten.
+    // Not as shitty anymore, problem probably isn't here anymore.
     public double update( boolean[] inputs, runtype type ) {
 
         // Create and ArrayList to put the outputs into
@@ -30,38 +32,38 @@ public class NeuralNet {
             flushCount = 1;
         }
 
-        for( int i = 0; i < flushCount; i++ ) {
 
+        for( int i = 0; i < flushCount; ++i ) {
             // Clear the output vector
             outputs = 0;
 
             // This is an index into the current neuron.
             int inputIndex = 0;
 
-            // first set the outputs of the input neurons to be equal to the values passed into the function in inputs
-            for( Node node : nodes ) {
-                if( node.getNodeType() == 0 ) {
-                    node.setOutput( inputs[ inputIndex ] );
-                    inputIndex += 1;
-                }
-            }
-
-            // Set the output of the bias to 1. WTF I don't know what the means.
-
-            // Step through the network a neuron at a time
+            // Iterate through each node of the phenotype.
             for( Node node : nodes ) {
 
-                // This will hold the sum of all the inputs * weight
-                double sum = 0;
+                // If its input then assign the value specified in the input array.
+                if( node.getNodeType() == NodeGene.nodeType.INPUT ) {
+                    node.setOutput( inputs[ node.getNodeID() - 1 ] );
+                } else if( node.getNodeType() == NodeGene.nodeType.BIAS ) {
+                    node.setOutput( 1.0 );
+                } else {
+                    // This will hold the sum of all the inputs * weight.
+                    double sum = 0;
 
-                // Sum the neuron's inputs by iterating through all the links into the neuron
-                for( Connection connection : node.getConnectionsIn() ) {
-                    sum += connection.weight * connection.getInNode().getOutput();
-                }
-                node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
+                    // Sum the neuron's inputs by iterating through all the links into the neuron
+                    for( Connection connection : node.getConnectionsIn() ) {
+                        sum += connection.weight * connection.getInNode().getOutput();
+                        //System.out.println( "ConnectionWeight: " + connection.weight + " | NodeOutput: " + connection.getInNode().getOutput() + " | Sum: " + sum );
+                    }
 
-                if( node.getNodeType() == 2 ) {
-                    outputs += node.getOutput();
+                    // TODO: the problem is here.
+                    node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
+
+                    if( node.getNodeType() == NodeGene.nodeType.OUTPUT ) {
+                        outputs += node.getOutput();
+                    }
                 }
             }
         }
@@ -136,6 +138,36 @@ public class NeuralNet {
 */
 
     public double sigmoid( double input, double activationResponse ) {
-        return ( 1.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );
+        // Original return
+        //return ( 2.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );
+
+        // tanh(x) implementation
+        return ( 2.0 / ( 1.0 + Math.exp( -( 2.0 * input / activationResponse ) ) ) ) - 1.0;
+    }
+
+
+    public ArrayList<Node> getNodes() {
+        return nodes;
+    }
+
+
+    public void reportNodes() {
+        String type;
+
+        for( Node node : nodes ) {
+            switch( node.getNodeType() ) {
+                case INPUT: type = "Input";
+                    break;
+                case HIDDEN: type = "Hidden";
+                    break;
+                case OUTPUT: type = "Output";
+                    break;
+                case BIAS: type = "Bias";
+                    break;
+                default: type = "Invalid Type";
+                    break;
+            }
+            System.out.println( "NodeID: " + node.getNodeID() + " | NodeType: " + type );
+        }
     }
 }

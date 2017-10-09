@@ -122,26 +122,27 @@ public class GenomeManager {
     // Searches the lookup table (i.e. HashMap) and sets the maximum depth found in a network
     public static void calculateNetDepth( Genome genome )   {
         int maxSoFar = 0;
-
         // Determine the maximum depth.
         for( NodeGene ng : genome.getAllNodeGenes() ) {
 
             try {
-                if ((ng.getSplitY() != 0.0) && splits.get(ng.getSplitY()) > maxSoFar) {
-                    maxSoFar = splits.get(ng.getSplitY());
+                if ( ( ng.getSplitY() != 0.0 ) && splits.get( ng.getSplitY() ) > maxSoFar ) {
+                    maxSoFar = splits.get( ng.getSplitY());
                 }
-            } catch ( NullPointerException n ) {
+            } catch ( NullPointerException npe ) {
 
                 // TODO: Sometimes this is thrown because a neural net becomes too deep. So at some point I need to limit nodes.
                 // For now, we're just going to ignore those nets and hope they're removed.
 
                 System.out.println( "SplitY: " + ng.getSplitY() );
                 System.out.println( "MaxSoFar: " + maxSoFar );
+                System.exit( 30 );
             }
         }
 
         // Super hacky, might as well put this as maxSoFar * 2.
         // TODO: figure out if this can be improved.
+        // System.out.println( "Max Depth: " + maxSoFar );
         genome.setDepth( maxSoFar + 2 );
 
     }
@@ -441,6 +442,7 @@ public class GenomeManager {
 
             // Deletes species if its not improving and if it doesn't have the best fitness.
             if( ( species.getAge() > Parameters.generationsAllowedNoImprovement) && ( species.getBestFitness() < bestFitnessEver ) ) {
+            //if( species.getAge() > Parameters.generationsAllowedNoImprovement ) {
                 toRemove.add( species );
             }
         }
@@ -451,7 +453,7 @@ public class GenomeManager {
     public static int determineHiddenNodes( ArrayList<NodeGene> nodeGenes ) {
         int output = 0;
         for( NodeGene ng : nodeGenes ) {
-            if( ng.getNodeType() == 1 ) {
+            if( ng.getNodeType() == NodeGene.nodeType.HIDDEN ) {
                 output += 1;
             }
         }

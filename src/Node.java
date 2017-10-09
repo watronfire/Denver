@@ -11,14 +11,15 @@ public class Node {
     // All the connections going out of this neuron
     private ArrayList<Connection> connectionsOut = new ArrayList<>();
 
-    // Sum of weights x inputs
-    private double sumActivation;
+    private static int NodeNum = 1;
+
+    private int nodeNumLocal;
 
     // The output from this neuron
     private double output;
 
     // The type of neuron this is. 0 = input, 1 = hidden, 2 = output
-    private int nodeType;
+    private NodeGene.nodeType nt;
 
     // The ID of this neuron
     private int nodeID;
@@ -27,16 +28,16 @@ public class Node {
     private double activationResponse;
 
     //Used in determining neural net depth.
-    private double splitY;
 
     //Constructor
-    public Node( int nodeType, int nodeID, double activationResponse, double splitY ) {
-        this.nodeType = nodeType;
+    public Node( NodeGene.nodeType nodeType, int nodeID, double activationResponse ) {
+        this.nt = nodeType;
         this.nodeID = nodeID;
         this.activationResponse = activationResponse;
-        this.splitY = splitY;
-        sumActivation = 0;
-        output = 0;
+        // output = 0;
+
+        nodeNumLocal = NodeNum;
+        NodeNum += 1;
     }
 
     public void addIncomingConnection( Connection connection ) {
@@ -46,10 +47,14 @@ public class Node {
         connectionsOut.add( connection );
     }
     
-    public int getNodeType() { return nodeType; }
+    public NodeGene.nodeType getNodeType() { return nt; }
+    public int getNodeID() { return nodeID; }
     public ArrayList<Connection> getConnectionsIn() { return connectionsIn; }
     public ArrayList<Connection> getConnectionsOut() { return connectionsOut; }
-    public double getOutput() { return output; }
+    public double getOutput() {
+        //System.out.println( "Output being sent: " + output + " | by Node " + nodeNumLocal );
+        return output;
+    }
     public double getActivationResponse() {
         return activationResponse;
     }
@@ -62,6 +67,8 @@ public class Node {
         } else {
             this.output = 0.0;
         }
+
+        //System.out.println( "Output actually set to: " + this.output );
     }
 
 }

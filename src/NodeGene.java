@@ -1,44 +1,61 @@
 /**
  * Created by nate on 3/28/17.
  */
+
+
+
+// A Previous version of this class used an integer value for nodeType where 0 is input, 1 is hidden, and 2 is output.
+// TODO: nodeType needs to be converted into an enum. Also bias needs to be introduced.
 public class NodeGene extends Gene {
 
+    public enum nodeType { INPUT, BIAS, HIDDEN, OUTPUT }
+
     private int nodeID;
-    private int nodeType;              // So 0 is input, 1 is hidden, and 2 is output. Probably a better way to do this.
-    private double value = 0.0;     // If the node is an input node then it should have a value of some kind. I think.
-                                           // While I'm making this a double, I'm not sure if that correct.
+    private nodeType nt;
 
     private double activationResponse = 0;
     // Useful for determining depth of a neural net...
     private double splitY;
 
     // For creating a new nodeGene from scratch
-    public NodeGene( int nodeID, int nodeType, double splitY ) {
+    public NodeGene( int nodeID, nodeType nt, double splitY ) {
         this.nodeID = nodeID;
+        this.nt = nt;
         innovation = Gene.getGlobalInnovation( this );
-        this.nodeType = nodeType;
         activationResponse = ( Math.random() * 2 ) - 1;
         this.splitY = splitY;
     }
 
     // For creating a nodeGene from a pre-existing nodeGene
-    public NodeGene( int nodeID, int innovation, int nodeType, double activationResponse, double splitY ) {
+    public NodeGene( int nodeID, int innovation, nodeType nt, double activationResponse, double splitY ) {
         this.nodeID = nodeID;
         this.innovation = innovation;
-        this.nodeType = nodeType;
+        this.nt = nt;
         this.activationResponse = activationResponse;
         this.splitY = splitY;
     }
 
-
     public int getNodeID() { return nodeID; }
-    public int getNodeType() { return nodeType; }
-    public double getValue() { return value; }
+    public nodeType getNodeType() { return nt; }
+    public int getNodeTypeInt() {
+        int output;
+        switch ( nt ) {
+            case INPUT: output = 0;
+                break;
+            case BIAS: output = 1;
+                break;
+            case HIDDEN: output = 2;
+                break;
+            case OUTPUT: output = 3;
+                break;
+            default: output = 0;
+        }
+        return output;
+    }
     public double getActivationResponse() { return activationResponse; }
     public double getSplitY() { return splitY; }
 
     public void setActivationResponse(double activationResponse) {
         this.activationResponse = activationResponse;
     }
-    public void setValue( double value ) { this.value = value; }
 }

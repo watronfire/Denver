@@ -12,8 +12,6 @@ public class Connection {
     // The connection weight
     double weight;
 
-    boolean recurrent;
-
     public Connection( double weight, Node in, Node out ) {
         this.weight = weight;
         inNode = in;
@@ -21,4 +19,5 @@ public class Connection {
     }
 
     public Node getInNode() { return inNode; }
+
 }

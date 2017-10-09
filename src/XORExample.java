@@ -13,9 +13,15 @@ public class XORExample {
     // Essentially generates two random booleans as the inputs, and then calculates the output using the exclusive OR
     // operator.
     public XORExample() {
-        Random random = new Random();
-        inputs[0] = random.nextBoolean();
-        inputs[1] = random.nextBoolean();
+            Random random = new Random();
+            inputs[0] = random.nextBoolean();
+            inputs[1] = random.nextBoolean();
+            output = inputs[0] ^ inputs[1];
+    }
+
+    public XORExample( boolean x, boolean y ) {
+        inputs[0] = x;
+        inputs[1] = y;
         output = inputs[0] ^ inputs[1];
     }
 
