@@ -37,11 +37,14 @@ public class Main {
 
             ArrayList<Genome> genomePool = new ArrayList<>();
             ArrayList<Species> speciesPool = new ArrayList<>();
-            XORExample[] tests = new XORExample[ 100 ];
-            for ( int i = 0; i < tests.length; i += 1 ) {
-                tests[i] = new XORExample();
+            XORExample[] tests = { new XORExample( false, false ),
+                                   new XORExample( false, true ),
+                                   new XORExample( true, false ),
+                                   new XORExample( true, true ) };
 
-            }
+            int[] correctRatios = { 0, 0, 0, 0 };
+
+            int count = 0;
 
             // Generate the genomePool
             for( int i = 0; i < Parameters.populationSize; i++ ) {
@@ -49,7 +52,7 @@ public class Main {
             }
 
 
-            while( true ) {
+            while( count < 10000 ) {
 
 
                 // Generate the XORTests for this epoch
@@ -61,7 +64,11 @@ public class Main {
                     // genome.cullConnections();
                     GenomeManager.calculateNetDepth( genome );
                     genome.createPhenotype();
-                    genome.calculateFitness( tests );
+                    int[] tmpAnswers = genome.calculateFitness( tests );
+
+                    for( int i = 0; i < tmpAnswers.length; i += 1 ) {
+                        correctRatios[i] += tmpAnswers[i];
+                    }
                 }
                 genomePool = GenomeManager.epoch( genomePool, speciesPool );
 
@@ -69,6 +76,12 @@ public class Main {
                     species.incrementAge();
                 }
 
+                count += 1;
+
+            }
+
+            for( int i : correctRatios ) {
+                System.out.println( i );
             }
         }
 

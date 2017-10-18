@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by nate on 4/11/17.
@@ -22,6 +19,7 @@ public class GenomeManager {
     // This functions ties everything together. Performs one epoch of the genetic algorithm and returns a
     // an ArrayList of new genomes.
     public static ArrayList<Genome> epoch( ArrayList<Genome> genomePool, ArrayList<Species> speciesPool ) {
+
         // Resets appropriate values and kills off poorly performing species.
         resetAndKill( speciesPool );
 
@@ -36,6 +34,8 @@ public class GenomeManager {
         int numSpawnedSoFar = 0;
 
         Genome temp;
+
+        Collections.sort( genomePool );
 
         // Iterate through each species and spawn new individuals for the next generation.
         for( Species species : speciesPool ) {
@@ -395,7 +395,7 @@ public class GenomeManager {
         // Iterate through each genome and speciate
         for( Genome genome: genomePool ) {
             // Determine whether a genome is the same species as each species leader. If it finds a
-            // compatible species, then add it to the species. If no suitabe species if found, then
+            // compatible species, then add it to the species. If no suitable species if found, then
             // create a new species.
             boolean added = false;
             for( Species species: speciesPool ) {

@@ -37,9 +37,6 @@ public class NeuralNet {
             // Clear the output vector
             outputs = 0;
 
-            // This is an index into the current neuron.
-            int inputIndex = 0;
-
             // Iterate through each node of the phenotype.
             for( Node node : nodes ) {
 
@@ -139,9 +136,10 @@ public class NeuralNet {
 
     public double sigmoid( double input, double activationResponse ) {
         // Original return
-        //return ( 2.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );
+        return ( 2.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );
+    }
 
-        // tanh(x) implementation
+    public double tanh( double input, double activationResponse ) {
         return ( 2.0 / ( 1.0 + Math.exp( -( 2.0 * input / activationResponse ) ) ) ) - 1.0;
     }
 

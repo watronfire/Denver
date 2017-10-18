@@ -105,7 +105,7 @@ public class Genome implements Comparable<Genome> {
         // Essentially there are two different mutation choices.
         // The first is to change weight to a completely random weight. The second is to just adjust the weight slightly.
         if( rng.nextBoolean() ) {
-            connectionGenes.get( index ).setWeight( rng.nextDouble() * 4 - 2);
+            connectionGenes.get( index ).setWeight( rng.nextDouble() * 4 - 2 );
         } else {
             double oldWeight = connectionGenes.get( index ).getWeight();
             connectionGenes.get( index ).setWeight( oldWeight + rng.nextDouble() * 0.2 - 0.1);
@@ -309,21 +309,22 @@ public class Genome implements Comparable<Genome> {
 
         phenotype = new NeuralNet( nodes.values(), depth );
     }
-    public void calculateFitness( XORExample[] tests ) {
+    public int[] calculateFitness( XORExample[] tests ) {
         fitness = 0;
-        int falseAnswers = 1;
-        int trueAnswers = 1;
+        int[] correctArray = { 0, 0, 0, 0 };
         // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
-        for( XORExample test : tests ) {
-            double result = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT );
+        for( int i = 0; i < tests.length; i += 1 ) {
+            double result = phenotype.update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT );
             boolean calculatedOutput = result < outputThreshold;
-            if( calculatedOutput == test.getOutput() ) {
+            if( calculatedOutput == tests[i].getOutput() ) {
                 fitness += 1;
-            } //else {
-                //fitness -= Math.abs( result - outputThreshold );
-            //}
-
+                correctArray[i] += 1;
+            } else {
+                fitness -= Math.abs( result - outputThreshold );
+            }
         }
+        // For testing.
+        return correctArray;
     }
     // Useless method for determining where the problem is
     public void calculateFitness( XORExample test ) {
