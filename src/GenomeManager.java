@@ -13,6 +13,7 @@ public class GenomeManager {
     private static double totalFitness;
     private static double bestFitnessEver;
     private static double bestFitnessThisGeneration;
+    private static Genome bestGenome;
     // Static HashMap where the integer value is the depth associated with a double key representing the SplitY.
     private static HashMap<Double, Integer> splits = new HashMap<>();
 
@@ -84,23 +85,27 @@ public class GenomeManager {
                         }
 
                         // Alright, so here we mutate everything by chance.
-                        if( Math.random() < Parameters.chanceMutateNode ) {
-                            temp.mutateNode();
-                        }
+
+                        boolean mutated = false;
                         if( Math.random() < Parameters.chanceMutateLink ) {
                             temp.mutateLink();
+                            mutated = true;
                         }
-                        if( Math.random() < Parameters.chanceMutateEnable ) {
+                        if( Math.random() < Parameters.chanceMutateEnable && !mutated ) {
                             temp.mutateEnable();
+                            mutated = true;
                         }
-                        if( Math.random() < Parameters.chanceMutateWeight ) {
+                        if( Math.random() < Parameters.chanceMutateWeight && !mutated ) {
                             temp.mutatePoint();
+                            mutated = true;
                         }
-                        if( Math.random() < Parameters.chanceMutateThreshold ) {
-                            temp.mutateThreshold();
-                        }
-                        if( Math.random() < Parameters.mutationRate ) {
+                        if( Math.random() < Parameters.mutationRate && !mutated ) {
                             temp.mutateActivationResponse();
+                            mutated = true;
+                        }
+                        if( Math.random() < Parameters.chanceMutateNode && !mutated ) {
+                            temp.mutateNode();
+                            mutated = true;
                         }
                     }
 
@@ -124,7 +129,6 @@ public class GenomeManager {
         int maxSoFar = 0;
         // Determine the maximum depth.
         for( NodeGene ng : genome.getAllNodeGenes() ) {
-
             try {
                 if ( ( ng.getSplitY() != 0.0 ) && splits.get( ng.getSplitY() ) > maxSoFar ) {
                     maxSoFar = splits.get( ng.getSplitY());
@@ -144,8 +148,9 @@ public class GenomeManager {
         // TODO: figure out if this can be improved.
         // System.out.println( "Max Depth: " + maxSoFar );
         genome.setDepth( maxSoFar + 2 );
-
     }
+
+
 
     // Creates a lookup table that is used to calculate the depth of a network.
     public static void split( double low, double high, int depth ) {
@@ -361,7 +366,6 @@ public class GenomeManager {
         totalAverageFitness = 0;
         bestFitnessThisGeneration = 0;
         double bestUnAdjFit = 0;
-        Genome bestGenome = null;
 
         // Iterate through every genome
         for( Genome genome : genomePool ) {
@@ -458,5 +462,9 @@ public class GenomeManager {
             }
         }
         return output;
+    }
+
+    public static Genome getBestGenome() {
+        return bestGenome;
     }
 }

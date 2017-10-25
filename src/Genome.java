@@ -127,7 +127,7 @@ public class Genome implements Comparable<Genome> {
         // Pick a terminus. Again, must be connected in a forward manner, so output must be hidden or output.
         // This loop will also make sure that the same node isn't both initial node and terminus.
         NodeGene nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
-        while( nodeTerminus.getNodeType() == NodeGene.nodeType.INPUT || nodeTerminus.getNodeID() == nodeInitial.getNodeID() ) {
+        while( nodeTerminus.getNodeType() == NodeGene.nodeType.INPUT || nodeTerminus.getNodeID() == nodeInitial.getNodeID() || nodeTerminus.getNodeType() == NodeGene.nodeType.BIAS ) {
             nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
         }
 
@@ -215,6 +215,7 @@ public class Genome implements Comparable<Genome> {
 
         // Create the new hidden node, saving its ID number for later use.
         double tempSplitY = ( getNodeGene( chosenGene.getInNode() ).getSplitY() + getNodeGene( chosenGene.getOutNode() ).getSplitY() ) / 2;
+        nodeNum = getMaxNode() + 1;
         nodeGenes.add( new NodeGene( nodeNum, NodeGene.nodeType.HIDDEN, tempSplitY ) );
         int newNodeID = nodeNum;
         nodeNum += 1;
@@ -234,15 +235,6 @@ public class Genome implements Comparable<Genome> {
         //System.out.println( "Enable Mutated" );
     }
     // Mutates the output threshold by either setting to a random double or adjusting slightly.
-    public void mutateThreshold() {
-        if( rng.nextBoolean() ) {
-            outputThreshold = rng.nextDouble() * 2 - 1;
-        } else {
-            outputThreshold += rng.nextDouble() * 0.2 - 0.1;
-        }
-
-        //System.out.println( "Threshold Mutated" );
-    }
     public void mutateActivationResponse() {
         int index = rng.nextInt( nodeGenes.size() );
 
@@ -311,19 +303,21 @@ public class Genome implements Comparable<Genome> {
     }
     public int[] calculateFitness( XORExample[] tests ) {
         fitness = 0;
+        double error = 0;
         int[] correctArray = { 0, 0, 0, 0 };
-        // Simple fitness method, if it gets the test correct, fitness is increased. Fitness decreased for incorrect.
+        // Using mean squared error for a fitness function, but its unclear whether the expected outcome is the
+        // test.output
         for( int i = 0; i < tests.length; i += 1 ) {
             double result = phenotype.update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT );
+            double expectedResult = tests[i].getOutput() ? 1 : 0;
+            error += Math.pow( result - expectedResult, 2 );
             boolean calculatedOutput = result < outputThreshold;
             if( calculatedOutput == tests[i].getOutput() ) {
-                fitness += 1;
                 correctArray[i] += 1;
-            } else {
-                fitness -= Math.abs( result - outputThreshold );
             }
         }
         // For testing.
+        fitness = -nodeGenes.size() + 100 * ( 1 / ( 1 + ( error / tests.length ) ) );
         return correctArray;
     }
     // Useless method for determining where the problem is
@@ -368,10 +362,15 @@ public class Genome implements Comparable<Genome> {
     // Returns the number of children this genome should spawn.
     public double getSpawnAmount() { return spawnAmount; }
     public double getAdjustedFitness() { return adjustedFitness; }
-    public double getDepth() { return depth; }
+    private int getMaxNode() {
+        int maxSoFar = 0;
+        for ( NodeGene ng : nodeGenes ) {
+            if ( ng.getNodeID() > maxSoFar ) {
+                maxSoFar = ng.getNodeID();
+            }
+        }
 
-    public NeuralNet getPhenotype() {
-        return phenotype;
+        return maxSoFar;
     }
 
     ////////////////////
@@ -405,7 +404,7 @@ public class Genome implements Comparable<Genome> {
                 default: type = "Invalid Type";
                     break;
             }
-            System.out.println( "NodeID: " + ng.getNodeID() + " | NodeType: " + type + " | Innovation: " + ng.getInnovation() );
+            System.out.println( "NodeID: " + ng.getNodeID() + " | NodeType: " + type + " | Innovation: " + ng.getInnovation() + " | SplitY: " + ng.getSplitY() );
         }
     }
     public void reportConnections() {
@@ -425,9 +424,9 @@ public class Genome implements Comparable<Genome> {
     // Because the values being compared are doubles, we need to lay out every case.
     public int compareTo( Genome genome ) {
         // I don't understand which direction these should be.
-        if( this.getFitness(1) < genome.getFitness(1) ) {
+        if( this.getAdjustedFitness() < genome.getAdjustedFitness() ) {
             return -1;
-        } else if( this.getFitness(1) > genome.getFitness(1) ) {
+        } else if( this.getAdjustedFitness() > genome.getAdjustedFitness() ) {
             return 1;
         }
         return 0;

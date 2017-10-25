@@ -15,7 +15,6 @@ public class NeuralNet {
         this.depth = depth;
     }
 
-
     // TODO: this method is still shit and needs to be rewritten.
     // Not as shitty anymore, problem probably isn't here anymore.
     public double update( boolean[] inputs, runtype type ) {
@@ -56,7 +55,7 @@ public class NeuralNet {
                     }
 
                     // TODO: the problem is here.
-                    node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
+                    node.setOutput( tanh( sum, node.getActivationResponse() ) );
 
                     if( node.getNodeType() == NodeGene.nodeType.OUTPUT ) {
                         outputs += node.getOutput();
@@ -142,7 +141,6 @@ public class NeuralNet {
     public double tanh( double input, double activationResponse ) {
         return ( 2.0 / ( 1.0 + Math.exp( -( 2.0 * input / activationResponse ) ) ) ) - 1.0;
     }
-
 
     public ArrayList<Node> getNodes() {
         return nodes;

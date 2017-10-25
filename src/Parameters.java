@@ -9,7 +9,7 @@ public class Parameters {
     static int sweeperScale = 2;
     static int numSensors = 5;
     static double sensorRange = 15;
-    static int populationSize = 100;
+    static int populationSize = 10;
     static int numTicks = 5000;
     static double cellSize = 5;
     static int numAddLinkAttempts = 5;
@@ -17,7 +17,7 @@ public class Parameters {
     static int generationsAllowedNoImprovement = 15;
     static int maxPermittedNeurons = 100;
     static double chanceMutateLink = 0.07;       // 0.07
-    static double chanceMutateNode = 0.03;       // 0.03
+    static double chanceMutateNode = 0.01;       // 0.03
     static double chanceMutateWeight = 0.2;     // 0.2
     static double chanceMutateEnable = 0.1;     // 0.1
     static double chanceMutateThreshold = 0.1;  // 0.1

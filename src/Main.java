@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,23 +14,20 @@ public class Main {
     //                                                                                         //
     /////////////////////////////////////////////////////////////////////////////////////////////
 
+    // TODO: The best performing genomes are those without hidden nodes. Because hidden nodes are required to
+    // successfully evaluate XOR, the best anything can do is a fitness of 3.0 because that would be a linear division.
+    // Something is happening so that increasing nodes is not helping. Also, connections shouldn't be allow from input
+    // to bias. Need to rewrite the mutateConnetion() function so that connections cannot terminate in the bias.
 
-    public static void main( String[] args ) {
+    public static void main ( String[]args ){
 
         if( false ) {
-            GenomeManager.split( 0, 1, 0 );
-            GenomeManager.splitAddendum();
-            Genome genome = new Genome( 2, 1 );
-            genome.reportNodes();
-            genome.reportConnections();
-            GenomeManager.calculateNetDepth( genome );
-            System.out.println();
-            System.out.println( "Genome Depth: " + genome.getDepth() );
-            genome.createPhenotype();
-            XORExample xor = new XORExample();
-            System.out.println( "Inputs: " + xor.getInputs()[0] + ", " + xor.getInputs()[1] + " | Output: " + xor.getOutput() );
-            genome.calculateFitness( xor );
+
+            new Visualizer();
+
         } else {
+
+
             // Must initialize the SplitY:Depth lookup table
             GenomeManager.split( 0, 1, 0 );
             // Hacky
@@ -38,21 +36,21 @@ public class Main {
             ArrayList<Genome> genomePool = new ArrayList<>();
             ArrayList<Species> speciesPool = new ArrayList<>();
             XORExample[] tests = { new XORExample( false, false ),
-                                   new XORExample( false, true ),
-                                   new XORExample( true, false ),
-                                   new XORExample( true, true ) };
+                    new XORExample( false, true ),
+                    new XORExample( true, false ),
+                    new XORExample( true, true ) };
 
             int[] correctRatios = { 0, 0, 0, 0 };
 
             int count = 0;
 
             // Generate the genomePool
-            for( int i = 0; i < Parameters.populationSize; i++ ) {
+            for ( int i = 0; i < Parameters.populationSize; i++ ) {
                 genomePool.add( new Genome( 2, 1 ) );
             }
 
 
-            while( count < 10000 ) {
+            while ( count < 1000 ) {
 
 
                 // Generate the XORTests for this epoch
@@ -66,13 +64,13 @@ public class Main {
                     genome.createPhenotype();
                     int[] tmpAnswers = genome.calculateFitness( tests );
 
-                    for( int i = 0; i < tmpAnswers.length; i += 1 ) {
+                    for ( int i = 0; i < tmpAnswers.length; i += 1 ) {
                         correctRatios[i] += tmpAnswers[i];
                     }
                 }
                 genomePool = GenomeManager.epoch( genomePool, speciesPool );
 
-                for( Species species : speciesPool ) {
+                for ( Species species : speciesPool ) {
                     species.incrementAge();
                 }
 
@@ -80,11 +78,14 @@ public class Main {
 
             }
 
-            for( int i : correctRatios ) {
+            for ( int i : correctRatios ) {
                 System.out.println( i );
             }
+
+            System.out.println();
+            GenomeManager.getBestGenome().reportNodes();
+            GenomeManager.getBestGenome().reportConnections();
+
         }
-
     }
-
 }
