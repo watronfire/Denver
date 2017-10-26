@@ -1,7 +1,8 @@
-import javax.swing.*;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Main {
 
@@ -21,12 +22,25 @@ public class Main {
 
     public static void main ( String[]args ){
 
+
         if( false ) {
 
-            new Visualizer();
+            Genome gen = new Genome( 2, 1 );
+            gen.createPhenotype();
+
+            try {
+                GenomeOutputer.writeNETFile( gen );
+            } catch ( IOException e ) {
+                System.err.println( e.getMessage() );
+                System.exit( 839214 );
+            }
+
+            Visualizer vis = new Visualizer();
+            vis.Display( "res/output.net" );
 
         } else {
 
+            Genome successfulGenome = null;
 
             // Must initialize the SplitY:Depth lookup table
             GenomeManager.split( 0, 1, 0 );
@@ -50,7 +64,7 @@ public class Main {
             }
 
 
-            while ( count < 1000 ) {
+            while ( count < 10000 ) {
 
 
                 // Generate the XORTests for this epoch
@@ -62,11 +76,13 @@ public class Main {
                     // genome.cullConnections();
                     GenomeManager.calculateNetDepth( genome );
                     genome.createPhenotype();
-                    int[] tmpAnswers = genome.calculateFitness( tests );
+                    if( genome.calculateFitness( tests ) ) {
+                        successfulGenome = genome;
+                        count = 99999999;
+                        break;
 
-                    for ( int i = 0; i < tmpAnswers.length; i += 1 ) {
-                        correctRatios[i] += tmpAnswers[i];
                     }
+
                 }
                 genomePool = GenomeManager.epoch( genomePool, speciesPool );
 
@@ -78,14 +94,34 @@ public class Main {
 
             }
 
-            for ( int i : correctRatios ) {
-                System.out.println( i );
+            System.out.println();
+
+            if( successfulGenome == null ) {
+                GenomeManager.getBestGenome().reportNodes();
+                GenomeManager.getBestGenome().reportConnections();
+            } else {
+                successfulGenome.reportNodes();
+                successfulGenome.reportConnections();
+
+                try {
+                    GenomeOutputer.writeNETFile( successfulGenome );
+                } catch ( IOException e ) {
+                    System.err.println( e.getMessage() );
+                    System.exit( 839214 );
+                }
+
+                Visualizer vis = new Visualizer();
+                vis.Display( "res/output.net" );
+                vis.setNodeColors( GenomeOutputer.getTypeArray( successfulGenome ) );
+
             }
 
-            System.out.println();
-            GenomeManager.getBestGenome().reportNodes();
-            GenomeManager.getBestGenome().reportConnections();
+
 
         }
     }
+
+
+
+
 }

@@ -118,17 +118,29 @@ public class Genome implements Comparable<Genome> {
     // connected in a forward manner.
     public void mutateLink() {
 
+        int attempts = 0;
+
         // Pick an initial node. Can only be input, hidden, or bias node.
         NodeGene nodeInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
         while( nodeInitial.getNodeType() == NodeGene.nodeType.OUTPUT ) {
-            nodeInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
+            if( attempts > 10 ) {
+                nodeInitial = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
+                attempts += 1;
+            } else { return; }
         }
 
-        // Pick a terminus. Again, must be connected in a forward manner, so output must be hidden or output.
+        // Pick a terminus. Again, must be connected in a forward manner.
         // This loop will also make sure that the same node isn't both initial node and terminus.
         NodeGene nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
-        while( nodeTerminus.getNodeType() == NodeGene.nodeType.INPUT || nodeTerminus.getNodeID() == nodeInitial.getNodeID() || nodeTerminus.getNodeType() == NodeGene.nodeType.BIAS ) {
-            nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
+        while( nodeTerminus.getNodeTypeInt() < 2 || nodeTerminus.getSplitY() < nodeInitial.getSplitY() || nodeTerminus == nodeInitial ) {
+            if( attempts < 10 ) {
+                nodeTerminus = nodeGenes.get( rng.nextInt( nodeGenes.size() ) );
+                attempts += 1;
+            } else { return; }
+        }
+
+        if( attempts == 10 ) {
+            return;
         }
 
         // Need to compare the connection to pre-existing connections to make sure it isn't redundant. Should that fall
@@ -146,6 +158,7 @@ public class Genome implements Comparable<Genome> {
     // hidden node, and a connection of the same weight as the disabled connection
     // TODO: The genetic algorithm seems to favor create lots and lots of nodes/connections with this method.
     // so a limiter needs to be implemented if the number of connections is greater than some limit.
+    // SplitY should also never be 0.
     public void mutateNode() {
 
         int attempts = 5;
@@ -301,24 +314,21 @@ public class Genome implements Comparable<Genome> {
 
         phenotype = new NeuralNet( nodes.values(), depth );
     }
-    public int[] calculateFitness( XORExample[] tests ) {
+    public boolean calculateFitness( XORExample[] tests ) {
         fitness = 0;
         double error = 0;
-        int[] correctArray = { 0, 0, 0, 0 };
         // Using mean squared error for a fitness function, but its unclear whether the expected outcome is the
         // test.output
         for( int i = 0; i < tests.length; i += 1 ) {
             double result = phenotype.update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT );
             double expectedResult = tests[i].getOutput() ? 1 : 0;
             error += Math.pow( result - expectedResult, 2 );
-            boolean calculatedOutput = result < outputThreshold;
-            if( calculatedOutput == tests[i].getOutput() ) {
-                correctArray[i] += 1;
-            }
+            //boolean calculatedOutput = result < outputThreshold;
         }
         // For testing.
-        fitness = -nodeGenes.size() + 100 * ( 1 / ( 1 + ( error / tests.length ) ) );
-        return correctArray;
+        fitness = 100 * ( 1 / ( 1 + ( error / tests.length ) ) );
+
+        return ( fitness > Parameters.successfulFitness * 0.95 );
     }
     // Useless method for determining where the problem is
     public void calculateFitness( XORExample test ) {
@@ -372,6 +382,7 @@ public class Genome implements Comparable<Genome> {
 
         return maxSoFar;
     }
+    public NeuralNet getPhenotype() { return phenotype; }
 
     ////////////////////
     // SETTER METHODS //

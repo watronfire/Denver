@@ -19,5 +19,6 @@ public class Connection {
     }
 
     public Node getInNode() { return inNode; }
+    public Node getOutNode() { return outNode; }
 
 }

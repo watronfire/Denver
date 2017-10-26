@@ -52,6 +52,27 @@ public class NodeGene extends Gene {
         }
         return output;
     }
+    public String getNodeTypeString() {
+        String output;
+        switch( nt ) {
+
+            case INPUT:
+                output = "INPUT";
+                break;
+            case BIAS:
+                output = "BIAS";
+                break;
+            case HIDDEN:
+                output = "HIDDEN";
+                break;
+            case OUTPUT:
+                output = "OUTPUT";
+                break;
+            default:
+                output = "??";
+        }
+        return output;
+    }
     public double getActivationResponse() { return activationResponse; }
     public double getSplitY() { return splitY; }
 

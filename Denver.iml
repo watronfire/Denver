@@ -7,6 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="gs-core-1" level="project" />
+    <orderEntry type="library" name="gs-ui-1" level="project" />
+    <orderEntry type="library" name="gs-algo-1" level="project" />
   </component>
 </module>
-

@@ -1,0 +1,33 @@
+graph {
+    fill-color: rgb( 225, 225, 225 );
+}
+
+node {
+    size: 40px;
+    fill-color: rgb( 155, 155, 155 );
+    text-color: rgb( 255, 255, 255 );
+    stroke-mode: plain;
+    stroke-width: 2px;
+    stroke-color: black;
+}
+
+node.INPUT {
+    fill-color: #ffffcc;
+}
+
+node.BIAS {
+    fill-color: #a1dab4;
+}
+
+node.HIDDEN {
+    fill-color: #41b6c4;
+}
+
+node.OUTPUT {
+    fill-color: #225ea8;
+}
+
+edge {
+    size: 2px;
+    shape: blob;
+}

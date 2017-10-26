@@ -48,6 +48,27 @@ public class Node {
     }
     
     public NodeGene.nodeType getNodeType() { return nt; }
+    public String getNodeTypeString() {
+        String output;
+        switch( nt ) {
+
+            case INPUT:
+                output = "INPUT";
+                break;
+            case BIAS:
+                output = "BIAS";
+                break;
+            case HIDDEN:
+                output = "HIDDEN";
+                break;
+            case OUTPUT:
+                output = "OUTPUT";
+                break;
+            default:
+                output = "??";
+        }
+        return output;
+    }
     public int getNodeID() { return nodeID; }
     public ArrayList<Connection> getConnectionsIn() { return connectionsIn; }
     public ArrayList<Connection> getConnectionsOut() { return connectionsOut; }
