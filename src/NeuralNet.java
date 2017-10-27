@@ -17,7 +17,7 @@ public class NeuralNet {
 
     // TODO: this method is still shit and needs to be rewritten.
     // Not as shitty anymore, problem probably isn't here anymore.
-    public double update( boolean[] inputs, runtype type ) {
+    public double update( double[] inputs, runtype type ) {
 
         // Create and ArrayList to put the outputs into
         double outputs = 0;
@@ -72,6 +72,7 @@ public class NeuralNet {
 
         return outputs;
     }
+
 /*
     public double update( ArrayList<Double> inputs, runtype type ) {
 

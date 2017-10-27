@@ -288,7 +288,6 @@ public class Genome implements Comparable<Genome> {
     // Creates a neural net from the genome
     public void createPhenotype() {
         // Make sure no phenotype is already present for this genome
-        // TODO: implement deletePhenotype().
         phenotype = null;
 
         // ArrayList to hold all the node required for phenotype
@@ -314,29 +313,39 @@ public class Genome implements Comparable<Genome> {
 
         phenotype = new NeuralNet( nodes.values(), depth );
     }
-    public boolean calculateFitness( XORExample[] tests ) {
+
+    // Calculate fitness if given training set.
+    public boolean calculateFitness( PatientData[] data, boolean isTraining ) {
+
+        // Reset fitness and error;
         fitness = 0;
         double error = 0;
-        // Using mean squared error for a fitness function, but its unclear whether the expected outcome is the
-        // test.output
-        for( int i = 0; i < tests.length; i += 1 ) {
-            double result = phenotype.update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT );
-            double expectedResult = tests[i].getOutput() ? 1 : 0;
+
+        // Gonna use mean squared error for a fitness function with the error being output - (Abnormal or normal).
+        for( PatientData pd : data ) {
+
+            // Get result from neural net
+            double result = phenotype.update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT );
+
+            // Get expected result from input
+            double expectedResult = pd.getOutcome();
+
+            // Calculate squared error.
             error += Math.pow( result - expectedResult, 2 );
-            //boolean calculatedOutput = result < outputThreshold;
         }
-        // For testing.
-        fitness = 100 * ( 1 / ( 1 + ( error / tests.length ) ) );
 
-        return ( fitness > Parameters.successfulFitness * 0.95 );
-    }
-    // Useless method for determining where the problem is
-    public void calculateFitness( XORExample test ) {
-        double result = phenotype.update( test.getInputs(), NeuralNet.runtype.SNAPSHOT );
+        // Calculate the mean of the error, and subtract the inverse from 100 to get a percentage correct.
+        if( isTraining ) {
+            fitness = 100 * ( 1 / ( 1 + ( error / data.length ) ) );
 
-        boolean calculatedOutput = result > outputThreshold;
-        System.out.print( "Result: " + result + " | Output Threshold: " + outputThreshold + " | Calculated Output: " + calculatedOutput );
+            // If fitness reaches within 5% of success then returns true, else returns false
+            return ( fitness > Parameters.successfulFitness * 0.95 );
 
+        // I really only want the trainingSet to affect fitness, so we create a variable which doesn't matter.
+        } else {
+            double fitnessTemp = 100 * ( 1 / ( 1 + ( error / data.length ) ) );
+            return ( fitnessTemp > Parameters.successfulFitness * 0.95 );
+        }
     }
 
 

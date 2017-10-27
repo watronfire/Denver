@@ -1,5 +1,6 @@
 graph {
-    fill-color: rgb( 225, 225, 225 );
+    fill-color: rgb( 255, 255, 255 ), rgb( 200, 200, 200 );
+    fill-mode: gradient-radial;
 }
 
 node {
@@ -9,14 +10,17 @@ node {
     stroke-mode: plain;
     stroke-width: 2px;
     stroke-color: black;
+    text-size: 16;
 }
 
 node.INPUT {
     fill-color: #ffffcc;
+    text-color: black;
 }
 
 node.BIAS {
     fill-color: #a1dab4;
+    text-color: black;
 }
 
 node.HIDDEN {

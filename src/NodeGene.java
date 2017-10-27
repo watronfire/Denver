@@ -5,7 +5,6 @@
 
 
 // A Previous version of this class used an integer value for nodeType where 0 is input, 1 is hidden, and 2 is output.
-// TODO: nodeType needs to be converted into an enum. Also bias needs to be introduced.
 public class NodeGene extends Gene {
 
     public enum nodeType { INPUT, BIAS, HIDDEN, OUTPUT }

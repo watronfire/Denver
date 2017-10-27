@@ -256,7 +256,6 @@ public class GenomeManager {
     }
 
     // Given two genomes, returns a new genome made up the crossover of the two input genomes.
-    // TODO: Figure out why sometimes, additional input nodes are created.
     private static Genome crossover( Genome genome1, Genome genome2 ) {
 
         ArrayList<Gene> childGeneList = new ArrayList<>();

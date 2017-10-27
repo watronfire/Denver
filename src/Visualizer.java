@@ -1,3 +1,4 @@
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.stream.GraphParseException;
@@ -52,6 +53,9 @@ public class Visualizer {
         }
 
     }
+
+    // Refactor so that this is the modification method.
+    // TODO: color edges based on weight. Also adjust stroke based on weight.
     public void setNodeColors( HashMap<Integer, String> typeArray ) {
         int outputsSeen = 0;
         int inputsSeen = 0;
@@ -66,7 +70,7 @@ public class Visualizer {
             }
             if( typeArray.get( i ).equals( "OUTPUT" ) ) {
                 graph.getNode( String.valueOf( i ) ).addAttribute( "layout.frozen" );
-                graph.getNode( String.valueOf( i ) ).addAttribute( "xy", outputsSeen, 2 );
+                graph.getNode( String.valueOf( i ) ).addAttribute( "xy", outputsSeen + 1, 2 );
                 outputsSeen += 1;
             }
         }
