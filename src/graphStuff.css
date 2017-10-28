@@ -13,10 +13,12 @@ node {
 
 node.INPUT {
     fill-color: #ffffcc;
+    text-color: black;
 }
 
 node.BIAS {
     fill-color: #a1dab4;
+    text-color: black;
 }
 
 node.HIDDEN {

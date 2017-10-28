@@ -97,9 +97,11 @@ public class Main {
             System.out.println();
 
             if( successfulGenome == null ) {
+                GenomeManager.getBestGenome().cullConnections();
                 GenomeManager.getBestGenome().reportNodes();
                 GenomeManager.getBestGenome().reportConnections();
             } else {
+                successfulGenome.cullConnections();
                 successfulGenome.reportNodes();
                 successfulGenome.reportConnections();
 
@@ -114,11 +116,20 @@ public class Main {
                 vis.Display( "res/output.net" );
                 vis.setNodeColors( GenomeOutputer.getTypeArray( successfulGenome ) );
 
+                for( int i = 0; i < tests.length; i += 1 ) {
+                    // If you want to output true / false.
+                    //System.out.println( ( "A: " + tests[i].getInputs()[0] + " | B: " + tests[i].getInputs()[1] + " | Expected: " + tests[i].getOutput() + " | Calculated: " + ( successfulGenome.getPhenotype().update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT ) > 0.5 ? "true" : "false" ) ) );
+
+                    // If you want to output actual values.
+                    System.out.println( ( "A: " + tests[i].getInputs()[0] + " | B: " + tests[i].getInputs()[1] + " | Expected: " + tests[i].getOutput() + " | Calculated: " + successfulGenome.getPhenotype().update( tests[i].getInputs(), NeuralNet.runtype.SNAPSHOT ) ) );
+
+                }
+
             }
 
-
-
         }
+
+
     }
 
 
