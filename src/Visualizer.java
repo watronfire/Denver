@@ -31,7 +31,7 @@ public class Visualizer {
             e.printStackTrace();
         }
         graph.display();
-        setNodeSize( minimumSize, maximumSize, graph );
+        //setNodeSize( minimumSize, maximumSize, graph );
     }
 
     private void setNodeSize( int minimumSize, int maximumSize, Graph graph) {
@@ -70,7 +70,7 @@ public class Visualizer {
             }
             if( typeArray.get( i ).equals( "OUTPUT" ) ) {
                 graph.getNode( String.valueOf( i ) ).addAttribute( "layout.frozen" );
-                graph.getNode( String.valueOf( i ) ).addAttribute( "xy", outputsSeen + 1, 2 );
+                graph.getNode( String.valueOf( i ) ).addAttribute( "xy", outputsSeen + 6, 12 );
                 outputsSeen += 1;
             }
         }

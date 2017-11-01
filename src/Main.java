@@ -13,17 +13,15 @@ public class Main {
     //                                                                                         //
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static void main ( String[]args ){
+    public static void main( String[] args ) {
 
 
-        if( false ) {
+        if ( false ) {
             DataParser dp = new DataParser( "res/spineEdited.csv" );
             dp.getRandomPatient();
             dp.reportSymptoms();
 
         } else {
-
-            Genome successfulGenome = null;
 
             // Must initialize the SplitY:Depth lookup table
             GenomeManager.split( 0, 1, 0 );
@@ -37,15 +35,10 @@ public class Main {
             // Get data from file
             DataParser dp = new DataParser( "res/spineEdited.csv" );
 
-            // Create initial training set.
-            PatientData[] trainingSet = new PatientData[155];
-            PatientData[] testSet = new PatientData[155];
+            // Create initial training set. Smaller is apparently better.
+            PatientData[] trainingSet = new PatientData[20];
 
             // Generate training and test set.
-            for( int i = 0; i < trainingSet.length; i += 1 ) {
-                trainingSet[i] = dp.getRandomPatient();
-                testSet[i] = dp.getRandomPatient();
-            }
 
             // Generation counter.
             int count = 0;
@@ -55,8 +48,13 @@ public class Main {
                 genomePool.add( new Genome( 12, 1 ) );
             }
 
-            // Enter genetic algorithm loop
-            while ( count < 100 ) {
+            // Enter genetic algorithm loop. Number is essentially number of generations to let algortihm run for.
+            // For this spine problem. 2000-3000 seems to be about right.
+            while ( count < 2500 ) {
+                // Create random training set.
+                for ( int i = 0; i < trainingSet.length; i += 1 ) {
+                    trainingSet[i] = dp.getRandomPatient();
+                }
 
                 // Calculate the finesses.
                 for ( Genome genome : genomePool ) {
@@ -64,17 +62,12 @@ public class Main {
                     // genome.cullConnections();
                     GenomeManager.calculateNetDepth( genome );
                     genome.createPhenotype();
-                    if( genome.calculateFitness( trainingSet, true ) ) {
-                        successfulGenome = genome;
 
-                        if( successfulGenome.calculateFitness( testSet, false ) ) {
-                            count = 99999999;
-                            break;
-                        }
-
-                    }
+                    genome.calculateFitness( trainingSet );
 
                 }
+
+
                 genomePool = GenomeManager.epoch( genomePool, speciesPool );
 
                 for ( Species species : speciesPool ) {
@@ -86,33 +79,24 @@ public class Main {
             }
 
             System.out.println();
-
-            if( successfulGenome == null ) {
-                GenomeManager.getBestGenome().reportNodes();
-                GenomeManager.getBestGenome().reportConnections();
-            } else {
-                successfulGenome.reportNodes();
-                successfulGenome.reportConnections();
-
-                try {
-                    GenomeOutputer.writeNETFile( successfulGenome );
-                } catch ( IOException e ) {
-                    System.err.println( e.getMessage() );
-                    System.exit( 839214 );
-                }
-
-                Visualizer vis = new Visualizer();
-                vis.Display( "res/output.net" );
-                vis.setNodeColors( GenomeOutputer.getTypeArray( successfulGenome ) );
-
+            GenomeManager.getBestGenome().reportNodes();
+            GenomeManager.getBestGenome().reportConnections();
+            try {
+                GenomeOutputer.writeNETFile( GenomeManager.getBestGenome() );
+            } catch ( IOException e ) {
+                System.err.println( e.getMessage() );
+                System.exit( 839214 );
             }
+            Visualizer vis = new Visualizer();
+            vis.Display( "res/output.net" );
+            vis.setNodeColors( GenomeOutputer.getTypeArray( GenomeManager.getBestGenome() ) );
 
+            System.out.println();
+            for( PatientData pd : dp.getData() ) {
 
-
+                boolean result = GenomeManager.getBestGenome().getPhenotype().update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT ) > 0.5;
+                System.out.println( pd.getOutcome() +"," + (result ? 1 : 0) );
+            }
         }
     }
-
-
-
-
 }

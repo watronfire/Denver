@@ -1,3 +1,5 @@
+import org.graphstream.algorithm.Parameter;
+
 import java.util.*;
 
 /**
@@ -315,37 +317,31 @@ public class Genome implements Comparable<Genome> {
     }
 
     // Calculate fitness if given training set.
-    public boolean calculateFitness( PatientData[] data, boolean isTraining ) {
+    public void calculateFitness( PatientData[] data1 ) {
 
         // Reset fitness and error;
         fitness = 0;
         double error = 0;
+        double result;
+        double expectedResult;
 
         // Gonna use mean squared error for a fitness function with the error being output - (Abnormal or normal).
-        for( PatientData pd : data ) {
+        for( PatientData pd : data1 ) {
 
             // Get result from neural net
-            double result = phenotype.update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT );
+            result = phenotype.update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT );
 
             // Get expected result from input
-            double expectedResult = pd.getOutcome();
+            expectedResult = pd.getOutcome();
 
             // Calculate squared error.
             error += Math.pow( result - expectedResult, 2 );
         }
 
+
         // Calculate the mean of the error, and subtract the inverse from 100 to get a percentage correct.
-        if( isTraining ) {
-            fitness = 100 * ( 1 / ( 1 + ( error / data.length ) ) );
-
-            // If fitness reaches within 5% of success then returns true, else returns false
-            return ( fitness > Parameters.successfulFitness * 0.95 );
-
-        // I really only want the trainingSet to affect fitness, so we create a variable which doesn't matter.
-        } else {
-            double fitnessTemp = 100 * ( 1 / ( 1 + ( error / data.length ) ) );
-            return ( fitnessTemp > Parameters.successfulFitness * 0.95 );
-        }
+        // If not a stress event.
+        fitness = 100 * ( 1 / ( 1 + ( error / data1.length ) ) );
     }
 
 
@@ -364,10 +360,10 @@ public class Genome implements Comparable<Genome> {
         return temp;
     }
     // Because connections hold only the ID of their input or output, this function returns the NodeGene with a certain ID
-    public NodeGene getNodeGene( int nodeID ) {
-        for( int i = 0; i < nodeGenes.size(); i += 1 ) {
-            if( nodeID == nodeGenes.get( i ).getNodeID() ) {
-                return nodeGenes.get( i );
+    private NodeGene getNodeGene( int nodeID ) {
+        for ( NodeGene nodeGene : nodeGenes ) {
+            if ( nodeID == nodeGene.getNodeID() ) {
+                return nodeGene;
             }
         }
         return null;

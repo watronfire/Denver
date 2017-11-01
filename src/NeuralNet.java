@@ -54,8 +54,7 @@ public class NeuralNet {
                         //System.out.println( "ConnectionWeight: " + connection.weight + " | NodeOutput: " + connection.getInNode().getOutput() + " | Sum: " + sum );
                     }
 
-                    // TODO: the problem is here.
-                    node.setOutput( tanh( sum, node.getActivationResponse() ) );
+                    node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
 
                     if( node.getNodeType() == NodeGene.nodeType.OUTPUT ) {
                         outputs += node.getOutput();
@@ -136,7 +135,7 @@ public class NeuralNet {
 
     public double sigmoid( double input, double activationResponse ) {
         // Original return
-        return ( 2.0 / ( 1.0 + Math.exp( -input / activationResponse ) ) );
+        return ( 1.0 / ( 1.0 + Math.exp( -input ) ) );
     }
 
     public double tanh( double input, double activationResponse ) {

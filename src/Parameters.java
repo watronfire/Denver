@@ -9,9 +9,9 @@ public class Parameters {
     static int generationsAllowedNoImprovement = 15;
     static int maxPermittedNeurons = 100;
     static double chanceMutateLink = 0.07;       // 0.07
-    static double chanceMutateNode = 0.03;       // 0.03
-    static double chanceMutateWeight = 0.2;     // 0.2
-    static double chanceMutateEnable = 0.1;     // 0.1
+    static double chanceMutateNode = 0.01;       // 0.03
+    static double chanceMutateWeight = 0.3;     // 0.2
+    static double chanceMutateEnable = 0.3;     // 0.1
     static double chanceMutateThreshold = 0.1;  // 0.1
     static double mutationRate = 0.1;           // 0.1
     static double maxWeightPerturbation = 0.5;
@@ -26,4 +26,5 @@ public class Parameters {
     static int maxNumberOfSpecies = 0;
     static int sizeThreshold = 5;
     static double successfulFitness = 100.0;
+    static int stressEventInterval = 5;
 }
