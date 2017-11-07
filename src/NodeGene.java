@@ -75,7 +75,20 @@ public class NodeGene extends Gene {
     }
     public double getActivationResponse() { return activationResponse; }
     public double getSplitY() { return splitY; }
-
+    public static nodeType parseNodeType( String input ) {
+        switch( input ) {
+            case "INPUT":
+                return nodeType.INPUT;
+            case "BIAS":
+                return nodeType.BIAS;
+            case "HIDDEN":
+                return nodeType.HIDDEN;
+            case "OUTPUT":
+                return nodeType.OUTPUT;
+            default:
+                return nodeType.HIDDEN;
+        }
+    }
     public void setActivationResponse(double activationResponse) {
         this.activationResponse = activationResponse;
     }

@@ -1,6 +1,3 @@
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -29,7 +26,7 @@ public class Main {
             gen.createPhenotype();
 
             try {
-                GenomeOutputer.writeNETFile( gen );
+                GenomeIO.writeNETFile( gen );
             } catch ( IOException e ) {
                 System.err.println( e.getMessage() );
                 System.exit( 839214 );
@@ -106,7 +103,7 @@ public class Main {
                 successfulGenome.reportConnections();
 
                 try {
-                    GenomeOutputer.writeNETFile( successfulGenome );
+                    GenomeIO.writeNETFile( successfulGenome );
                 } catch ( IOException e ) {
                     System.err.println( e.getMessage() );
                     System.exit( 839214 );
@@ -114,7 +111,7 @@ public class Main {
 
                 Visualizer vis = new Visualizer();
                 vis.Display( "res/output.net" );
-                vis.setNodeColors( GenomeOutputer.getTypeArray( successfulGenome ) );
+                vis.setNodeColors( GenomeIO.getTypeArray( successfulGenome ) );
 
                 for( int i = 0; i < tests.length; i += 1 ) {
                     // If you want to output true / false.
