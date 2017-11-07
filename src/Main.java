@@ -1,8 +1,6 @@
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Main {
 
@@ -14,15 +12,27 @@ public class Main {
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     public static void main( String[] args ) {
+        if( true ) {
+            Genome gen = new Genome( 6, 1 );
+            //gen.reportNodes();
+            gen.reportConnections();
 
+            try {
+                GenomeIO.writeNNFile( gen );
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
 
-        if ( false ) {
-            DataParser dp = new DataParser( "res/spineEdited.csv" );
-            dp.getRandomPatient();
-            dp.reportSymptoms();
+            System.out.println( "Genome to open: " );
+            Scanner scanner = new Scanner( System.in );
+            String genomeName = scanner.nextLine();
+
+            Genome newGen = GenomeIO.readNNfile( genomeName );
+            //newGen.reportNodes();
+            newGen.reportConnections();
+
 
         } else {
-
             // Must initialize the SplitY:Depth lookup table
             GenomeManager.split( 0, 1, 0 );
             // Hacky
@@ -82,20 +92,21 @@ public class Main {
             GenomeManager.getBestGenome().reportNodes();
             GenomeManager.getBestGenome().reportConnections();
             try {
-                GenomeOutputer.writeNETFile( GenomeManager.getBestGenome() );
+                GenomeIO.writeNETFile( GenomeManager.getBestGenome() );
+                GenomeIO.writeNNFile( GenomeManager.getBestGenome() );
             } catch ( IOException e ) {
                 System.err.println( e.getMessage() );
                 System.exit( 839214 );
             }
             Visualizer vis = new Visualizer();
             vis.Display( "res/output.net" );
-            vis.setNodeColors( GenomeOutputer.getTypeArray( GenomeManager.getBestGenome() ) );
+            vis.setNodeColors( GenomeIO.getTypeArray( GenomeManager.getBestGenome() ) );
 
             System.out.println();
-            for( PatientData pd : dp.getData() ) {
+            for ( PatientData pd : dp.getData() ) {
 
                 boolean result = GenomeManager.getBestGenome().getPhenotype().update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT ) > 0.5;
-                System.out.println( pd.getOutcome() +"," + (result ? 1 : 0) );
+                System.out.println( pd.getOutcome() + "," + ( result ? 1 : 0 ) );
             }
         }
     }

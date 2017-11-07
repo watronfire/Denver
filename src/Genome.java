@@ -315,7 +315,6 @@ public class Genome implements Comparable<Genome> {
 
         phenotype = new NeuralNet( nodes.values(), depth );
     }
-
     // Calculate fitness if given training set.
     public void calculateFitness( PatientData[] data1 ) {
 
