@@ -140,7 +140,8 @@ public class GenomeManager {
 
                 System.out.println( "SplitY: " + ng.getSplitY() );
                 System.out.println( "MaxSoFar: " + maxSoFar );
-                System.exit( 30 );
+                //System.exit( 30 );
+                maxSoFar = 7;
             }
         }
 
@@ -149,8 +150,6 @@ public class GenomeManager {
         // System.out.println( "Max Depth: " + maxSoFar );
         genome.setDepth( maxSoFar + 2 );
     }
-
-
 
     // Creates a lookup table that is used to calculate the depth of a network.
     public static void split( double low, double high, int depth ) {
@@ -384,7 +383,7 @@ public class GenomeManager {
         }
         totalAverageFitness = totalFitness / genomePool.size();
         //System.out.println( "Average Fitness: " + totalAverageFitness + " | Best Fitness: " + bestFitnessThisGeneration );
-        System.out.println( totalAverageFitness + "," + bestUnAdjFit );
+        //System.out.println( totalAverageFitness + "," + bestUnAdjFit );
 
         for( Genome genome : genomePool ) {
             genome.setSpawnAmount( genome.getAdjustedFitness() / totalAverageFitness );

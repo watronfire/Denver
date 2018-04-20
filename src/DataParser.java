@@ -13,25 +13,48 @@ import java.util.Random;
 
 public class DataParser {
 
-    ArrayList<PatientData> patientData = new ArrayList<>();
+    private ArrayList<MLSGame> mlsGames = new ArrayList<>();
 
     public DataParser( String csvFile ) {
         String line;
         String cvsSplitBy = ",";
 
         try ( BufferedReader br = new BufferedReader( new FileReader( csvFile ) ) ) {
-            int count = 0;
             while ( ( line = br.readLine() ) != null ) {
 
                 // use comma as separator 0-11 are symptoms, 12 is outcome.
-                String[] patient = line.split( cvsSplitBy );
-                double[] symptoms = new double[12];
-                for( int i = 0; i < 12; i += 1 ) {
-                    symptoms[i] = Double.parseDouble( patient[i] );
-                }
+                String[] game = line.split( cvsSplitBy );
+                double[] metrics = new double[13];
+                int[] outcomes = new int[3];
 
-                patientData.add( new PatientData( symptoms, Integer.parseInt( patient[12] ) ) );
-                count += 1;
+                metrics[0] = Double.parseDouble( game[4] );
+                metrics[1] = Double.parseDouble( game[5] );
+                metrics[2] = Double.parseDouble( game[7] );
+                metrics[3] = Double.parseDouble( game[8] );
+                metrics[4] = Double.parseDouble( game[15] );
+                metrics[5] = Double.parseDouble( game[16] );
+                metrics[6] = Double.parseDouble( game[17] );
+                metrics[7] = Double.parseDouble( game[18] );
+                metrics[8] = Double.parseDouble( game[19] );
+                metrics[9] = Double.parseDouble( game[20] );
+                metrics[10] = Double.parseDouble( game[21] );
+                metrics[11] = Double.parseDouble( game[21] );
+                metrics[12] = Double.parseDouble( game[23] );
+
+                String result = game[14];
+                switch( result ) {
+                    case "H": outcomes[0] = 0;
+                        break;
+                    case "D": outcomes[0] = 1;
+                        break;
+                    case "A": outcomes[0] = 2;
+                        break;
+                }
+                outcomes[1] = Integer.parseInt( game[12] );
+                outcomes[2] = Integer.parseInt( game[13] );
+
+
+                mlsGames.add( new MLSGame( metrics, outcomes ) );
             }
 
         } catch ( IOException e ) {
@@ -39,24 +62,27 @@ public class DataParser {
         }
     }
 
-    public PatientData getRandomPatient() {
+    public MLSGame getRandomMLSGame() {
         Random ran = new Random();
-        return patientData.get( ran.nextInt( patientData.size() ) );
+        return mlsGames.get( ran.nextInt( mlsGames.size() ) );
     }
 
     public void reportOutcomes() {
-        for( PatientData pd : patientData ) {
-            System.out.println( pd.outcome );
+        for( MLSGame mlsg : mlsGames ) {
+            for( int i : mlsg.getOutcomes() ) {
+                System.out.print( i + "," );
+            }
+            System.out.println();
         }
     }
     public void reportSymptoms() {
-        for( PatientData pd : patientData ) {
-            for( double d : pd.symptoms ) {
-                System.out.print( d + "," );
+        for( MLSGame mlsg : mlsGames ) {
+            for( double f : mlsg.getMetrics() ) {
+                System.out.print( f + "," );
             }
             System.out.println();
         }
     }
 
-    public ArrayList<PatientData> getData() { return patientData; }
+    public ArrayList<MLSGame> getData() { return mlsGames; }
 }

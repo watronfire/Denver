@@ -17,10 +17,10 @@ public class NeuralNet {
 
     // TODO: this method is still shit and needs to be rewritten.
     // Not as shitty anymore, problem probably isn't here anymore.
-    public double update( double[] inputs, runtype type ) {
+    public ArrayList<Double> update( double[] inputs, runtype type ) {
 
         // Create and ArrayList to put the outputs into
-        double outputs = 0;
+        ArrayList<Double> outputs = new ArrayList<>();
         // if the mode is SNAPSHOT then all neurons must be iterated through as many times as the network
         // is deep. If the mode is set to ACTIVE the method can return an output after just one iteration.
         int flushCount;
@@ -34,7 +34,7 @@ public class NeuralNet {
 
         for( int i = 0; i < flushCount; ++i ) {
             // Clear the output vector
-            outputs = 0;
+            outputs.clear();
 
             // Iterate through each node of the phenotype.
             for( Node node : nodes ) {
@@ -57,7 +57,7 @@ public class NeuralNet {
                     node.setOutput( sigmoid( sum, node.getActivationResponse() ) );
 
                     if( node.getNodeType() == NodeGene.nodeType.OUTPUT ) {
-                        outputs += node.getOutput();
+                        outputs.add( node.getOutput() );
                     }
                 }
             }
@@ -133,11 +133,13 @@ public class NeuralNet {
     }
 */
 
+    // TODO: may play around with multiplying input by a fraction to widen the curve.
     public double sigmoid( double input, double activationResponse ) {
         // Original return
-        return ( 1.0 / ( 1.0 + Math.exp( -input ) ) );
+        return ( 2.0 / ( 1.0 + Math.exp( -input ) ) );
     }
 
+    // Potentially use this for soccer results, as
     public double tanh( double input, double activationResponse ) {
         return ( 2.0 / ( 1.0 + Math.exp( -( 2.0 * input / activationResponse ) ) ) ) - 1.0;
     }

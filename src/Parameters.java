@@ -27,4 +27,5 @@ public class Parameters {
     static int sizeThreshold = 5;
     static double successfulFitness = 100.0;
     static int stressEventInterval = 5;
+    static int trainingSetSize = 20;
 }

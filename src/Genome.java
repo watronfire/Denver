@@ -315,32 +315,37 @@ public class Genome implements Comparable<Genome> {
 
         phenotype = new NeuralNet( nodes.values(), depth );
     }
-    // Calculate fitness if given training set.
-    public void calculateFitness( PatientData[] data1 ) {
 
-        // Reset fitness and error;
-        fitness = 0;
+    // Currently pretty shitty.
+    public void calculateFitness( MLSGame[] data ) {
+        fitness = Parameters.trainingSetSize;
         double error = 0;
-        double result;
-        double expectedResult;
+        ArrayList<Double> results;
+        int matchResult;
 
-        // Gonna use mean squared error for a fitness function with the error being output - (Abnormal or normal).
-        for( PatientData pd : data1 ) {
+        for( MLSGame game : data ) {
+            fitness -= 1;
 
-            // Get result from neural net
-            result = phenotype.update( pd.getSymptoms(), NeuralNet.runtype.SNAPSHOT );
+            results = phenotype.update( game.getMetrics(), NeuralNet.runtype.SNAPSHOT );
 
-            // Get expected result from input
-            expectedResult = pd.getOutcome();
+            if( results.get( 0 ) > 1.33 ) {
+                matchResult = 2;
+            } else if( results.get( 0 ) < 0.66 ) {
+                matchResult = 0;
+            } else {
+                matchResult = 1;
+            }
 
-            // Calculate squared error.
-            error += Math.pow( result - expectedResult, 2 );
+            if( matchResult == game.getResult() ) {
+                if( matchResult == 0 ) {
+                    fitness += game.getAvgH();
+                } else if( matchResult == 1 ) {
+                    fitness += game.getAvgD();
+                } else {
+                    fitness += game.getAvgA();
+                }
+            }
         }
-
-
-        // Calculate the mean of the error, and subtract the inverse from 100 to get a percentage correct.
-        // If not a stress event.
-        fitness = 100 * ( 1 / ( 1 + ( error / data1.length ) ) );
     }
 
 
